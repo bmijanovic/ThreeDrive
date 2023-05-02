@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/io_client.dart';
 
-import '../helper.dart';
 
 
 class User {
@@ -45,6 +44,33 @@ class User {
       // user = User(userData['id'], userData['firstName'], userData['lastName'],
       //     userData['email'], userData['password'], 0.0);
       // return jsonDecode(response.body)['id'];
+      return "1";
+    } else {
+      throw StateError(res['body']);
+    }
+  }
+
+  static Future<String> logIn(String username, String password) async
+  {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.post(
+      Uri.parse('https://kf8dco6sv9.execute-api.eu-north-1.amazonaws.com/test/login'),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+      },
+      body: json.encode(
+        {
+          'username': username,
+          'password': password,
+        },
+      ),
+    );
+    var res = jsonDecode(response.body);
+    if (res['statusCode'] == 200) {
       return "1";
     } else {
       throw StateError(res['body']);
