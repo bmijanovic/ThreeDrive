@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:threecloud/screens/home_screen.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'package:threecloud/screens/registration_screen.dart';
 import 'style.dart';
@@ -50,7 +51,7 @@ class _MyAppState extends State<MyApp> {
         ),
         tabBarTheme: myTabBarTheme,
       ),
-      home: loggedIn == true ? RegistrationScreen() : RegistrationScreen(),
+      home: loggedIn == true ? HomeScreen() : HomeScreen(),
     );
   }
 }
