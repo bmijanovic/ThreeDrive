@@ -20,7 +20,7 @@ class UploadFileScreenState extends State<UploadFileScreen> {
   final List<String> _valueList = [];
   final File file;
   UploadFileScreenState(this.file);
-  List<String> reservedWords=["extension","mime","name","id","owner","share","size","timeModified","timeUploaded"];
+  List<String> reservedWords=["extension","mime","name","id","owner","share","size","timeModified","timeUploaded","resource_id"];
   DateTime selectedDate = DateTime.now();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController tagKeyController = TextEditingController();
@@ -101,6 +101,10 @@ class UploadFileScreenState extends State<UploadFileScreen> {
                     }else{
                       if (tagKeyController.text == ""|| reservedWords.contains(tagKeyController.text) ){
                         keyError="Value is empty or use reserved word";
+                        setState(() {});
+                      }
+                      else if (_keyList.contains(tagKeyController.text)) {
+                        keyError="Key already exists";
                         setState(() {});
                       }
                       else{
@@ -247,7 +251,7 @@ class UploadFileScreenState extends State<UploadFileScreen> {
 
   addDynamic(){
     setState(() {
-      if (tagValueController.text != ""&& tagKeyController.text != ""&& !reservedWords.contains(tagKeyController.text)) {
+      if (tagValueController.text != ""&& tagKeyController.text != ""&& !reservedWords.contains(tagKeyController.text) && !_keyList.contains(tagKeyController.text)) {
           _cardList.add(new TagCard(
           keyTag: tagKeyController.text, valueTag: tagValueController.text,));
           _keyList.add(tagKeyController.text);
