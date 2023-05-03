@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:http/io_client.dart';
 
 class Resource {
-  static Future<String> upload(String name, String image) async
+  static Future<String> upload(String name, String image,List<Map<String,String>> tags) async
   {
     bool trustSelfSigned = true;
     HttpClient httpClient = HttpClient()
@@ -22,7 +22,7 @@ class Resource {
         {
           'name': name,
           'image': image,
-          'tags':[]
+          'tags':tags,
         },
       ),
     );
