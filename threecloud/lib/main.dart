@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:threecloud/screens/home_screen.dart';
+import 'package:threecloud/screens/login_screen.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 import 'package:threecloud/screens/registration_screen.dart';
 import 'style.dart';
 import 'helper.dart';
-import 'models/user.dart';
 
 void main() {
   runApp(const MyApp());
@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
         ),
         tabBarTheme: myTabBarTheme,
       ),
-      home: loggedIn == true ? HomeScreen() : HomeScreen(),
+      home: loggedIn == true ? HomeScreen() : LoginScreen(),
     );
   }
 }
