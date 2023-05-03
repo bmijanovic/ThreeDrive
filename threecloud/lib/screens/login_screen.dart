@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:threecloud/screens/home_screen.dart';
 import 'package:threecloud/screens/registration_screen.dart';
 import '../models/user.dart';
 import '../widgets/big_text_field.dart';
@@ -77,7 +78,10 @@ class LoginScreen extends StatelessWidget {
     try
     {
       String id = await User.logIn(usernameController.text, passwordController.text);
-
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
       Fluttertoast.showToast(
           msg: "Logged in successfully!",
           toastLength: Toast.LENGTH_SHORT,

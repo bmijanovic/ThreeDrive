@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:threecloud/widgets/tag_card.dart';
 
 import '../models/resource.dart';
@@ -246,6 +247,15 @@ class UploadFileScreenState extends State<UploadFileScreen> {
     }
     await Resource.upload(nameController.text,base64File,tags);
     Navigator.pop(context);
+    Fluttertoast.showToast(
+        msg: "File Uploaded Successfully!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.blueAccent,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
 
 
@@ -256,6 +266,8 @@ class UploadFileScreenState extends State<UploadFileScreen> {
           keyTag: tagKeyController.text, valueTag: tagValueController.text,));
           _keyList.add(tagKeyController.text);
           _valueList.add(tagValueController.text);
+          tagValueController.text = "";
+          tagKeyController.text = "";
       }
     });
   }
