@@ -1,0 +1,1446 @@
+{
+  "service": {
+    "service": "three-drive",
+    "serviceObject": {
+      "name": "three-drive"
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "python3.10",
+      "stage": "dev",
+      "region": "eu-north-1",
+      "memorySize": 128,
+      "timeout": 10,
+      "environment": {
+        "USERS_TABLE_NAME": {
+          "Ref": "usersTable"
+        },
+        "RESOURCES_TABLE_NAME": {
+          "Ref": "resourcesTable"
+        },
+        "DIRECTORIES_TABLE_NAME": {
+          "Ref": "directoriesTable"
+        },
+        "RESOURCES_BUCKET_NAME": {
+          "Ref": "resourcesThreeCloud"
+        }
+      },
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:DescribeTable",
+            "dynamodb:Query",
+            "dynamodb:Scan",
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem"
+          ],
+          "Resource": [
+            {
+              "Fn::GetAtt": [
+                "usersTable",
+                "Arn"
+              ]
+            },
+            {
+              "Fn::GetAtt": [
+                "resourcesTable",
+                "Arn"
+              ]
+            },
+            {
+              "Fn::GetAtt": [
+                "directoriesTable",
+                "Arn"
+              ]
+            }
+          ]
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:ListBucket",
+            "s3:DeleteObject"
+          ],
+          "Resource": [
+            "arn:aws:s3:::resources-three-cloud",
+            "arn:aws:s3:::resources-three-cloud/*"
+          ]
+        }
+      ],
+      "versionFunctions": true,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ServerlessDeploymentBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:*",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Resource": [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            }
+                          ]
+                        ]
+                      }
+                    ],
+                    "Condition": {
+                      "Bool": {
+                        "aws:SecureTransport": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "LoginLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/three-drive-dev-login"
+            }
+          },
+          "RegistrationLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/three-drive-dev-registration"
+            }
+          },
+          "UploadResourceLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/three-drive-dev-uploadResource"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "three-drive",
+                        "dev",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup",
+                          "logs:TagResource"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/three-drive-dev*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/three-drive-dev*:*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iamRoleStatements\"][0]"
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iamRoleStatements\"][1]"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "three-drive",
+                    "dev",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "LoginLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/three-drive/dev/1684677331245-2023-05-21T13:55:31.245Z/login.zip"
+              },
+              "Handler": "login/login.login",
+              "Runtime": "python3.10",
+              "FunctionName": "three-drive-dev-login",
+              "MemorySize": 128,
+              "Timeout": 10,
+              "Environment": {
+                "Variables": {
+                  "USERS_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE_NAME\"]"
+                  },
+                  "RESOURCES_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"RESOURCES_TABLE_NAME\"]"
+                  },
+                  "DIRECTORIES_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"DIRECTORIES_TABLE_NAME\"]"
+                  },
+                  "RESOURCES_BUCKET_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"RESOURCES_BUCKET_NAME\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "LoginLogGroup"
+            ]
+          },
+          "RegistrationLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/three-drive/dev/1684677331245-2023-05-21T13:55:31.245Z/registration.zip"
+              },
+              "Handler": "registration/registration.registration",
+              "Runtime": "python3.10",
+              "FunctionName": "three-drive-dev-registration",
+              "MemorySize": 128,
+              "Timeout": 10,
+              "Environment": {
+                "Variables": {
+                  "USERS_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE_NAME\"]"
+                  },
+                  "RESOURCES_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"RESOURCES_TABLE_NAME\"]"
+                  },
+                  "DIRECTORIES_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"DIRECTORIES_TABLE_NAME\"]"
+                  },
+                  "RESOURCES_BUCKET_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"RESOURCES_BUCKET_NAME\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "RegistrationLogGroup"
+            ]
+          },
+          "UploadResourceLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/three-drive/dev/1684677331245-2023-05-21T13:55:31.245Z/uploadResource.zip"
+              },
+              "Handler": "uploadResource/uploadResource.upload",
+              "Runtime": "python3.10",
+              "FunctionName": "three-drive-dev-uploadResource",
+              "MemorySize": 128,
+              "Timeout": 10,
+              "Environment": {
+                "Variables": {
+                  "USERS_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE_NAME\"]"
+                  },
+                  "RESOURCES_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"RESOURCES_TABLE_NAME\"]"
+                  },
+                  "DIRECTORIES_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"DIRECTORIES_TABLE_NAME\"]"
+                  },
+                  "RESOURCES_BUCKET_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"RESOURCES_BUCKET_NAME\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "UploadResourceLogGroup"
+            ]
+          },
+          "RegistrationLambdaVersion6hZOjQgmAhrk4tuIbXh3Ag7WL1IasQFJstFdDV9Iwos": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "RegistrationLambdaFunction"
+              },
+              "CodeSha256": "knBEjTajRlUYSkHR7ytRQDswYs2Y/DUICwnLJnLbdIQ="
+            }
+          },
+          "LoginLambdaVersionu5SPjIPn8ouNO2jcFLHiJBRhV7bY9ZhEscN3RDkTr4": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "LoginLambdaFunction"
+              },
+              "CodeSha256": "dv/aJwxT61L4caHbEDZfZ8AqsAdzQ86BquFxNQQcimo="
+            }
+          },
+          "UploadResourceLambdaVersion0uqpq7qDbZS0NmVcP6I1ebUSQDQ41zqIbdLAbYR0CU": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "UploadResourceLambdaFunction"
+              },
+              "CodeSha256": "tlBRLiSI9GbE47QYx86HuApzx+eUTlpNvd327Ba33qY="
+            }
+          },
+          "ApiGatewayRestApi": {
+            "Type": "AWS::ApiGateway::RestApi",
+            "Properties": {
+              "Name": "dev-three-drive",
+              "EndpointConfiguration": {
+                "Types": [
+                  "EDGE"
+                ]
+              },
+              "Policy": ""
+            }
+          },
+          "ApiGatewayResourceLogin": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "login",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceRegistration": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "registration",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceUpload": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "upload",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodLoginOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceLogin"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodRegistrationOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceRegistration"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodUploadOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceUpload"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodLoginPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceLogin"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "LoginLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "LoginLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayMethodRegistrationPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceRegistration"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "RegistrationLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "RegistrationLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayMethodUploadPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceUpload"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "UploadResourceLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "UploadResourceLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayDeployment1684677330210": {
+            "Type": "AWS::ApiGateway::Deployment",
+            "Properties": {
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "StageName": "dev"
+            },
+            "DependsOn": [
+              "ApiGatewayMethodLoginOptions",
+              "ApiGatewayMethodRegistrationOptions",
+              "ApiGatewayMethodUploadOptions",
+              "ApiGatewayMethodLoginPost",
+              "ApiGatewayMethodRegistrationPost",
+              "ApiGatewayMethodUploadPost"
+            ]
+          },
+          "LoginLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "LoginLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "RegistrationLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "RegistrationLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "UploadResourceLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "UploadResourceLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "usersTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "Users",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "username",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "birthdate",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "email",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "name",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "password",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "surname",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "username",
+                  "KeyType": "HASH"
+                }
+              ],
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 5,
+                "WriteCapacityUnits": 5
+              }
+            }
+          },
+          "directoriesTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "Directory",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "path",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "resources",
+                  "AttributeType": "L"
+                },
+                {
+                  "AttributeName": "ownerId",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "users",
+                  "AttributeType": "L"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "path",
+                  "KeyType": "HASH"
+                }
+              ],
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 5,
+                "WriteCapacityUnits": 5
+              }
+            }
+          },
+          "resourcesTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "Resources",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "path",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "extension",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "mime",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "name",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "owner",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "size",
+                  "AttributeType": "N"
+                },
+                {
+                  "AttributeName": "resourcesId",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "timeModified",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "timeUploaded",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "path",
+                  "KeyType": "HASH"
+                }
+              ],
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 5,
+                "WriteCapacityUnits": 5
+              }
+            }
+          },
+          "resourcesThreeCloud": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketName": "resources-three-cloud"
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            },
+            "Export": {
+              "Name": "sls-three-drive-dev-ServerlessDeploymentBucketName"
+            }
+          },
+          "RegistrationLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "RegistrationLambdaVersion6hZOjQgmAhrk4tuIbXh3Ag7WL1IasQFJstFdDV9Iwos"
+            },
+            "Export": {
+              "Name": "sls-three-drive-dev-RegistrationLambdaFunctionQualifiedArn"
+            }
+          },
+          "LoginLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "LoginLambdaVersionu5SPjIPn8ouNO2jcFLHiJBRhV7bY9ZhEscN3RDkTr4"
+            },
+            "Export": {
+              "Name": "sls-three-drive-dev-LoginLambdaFunctionQualifiedArn"
+            }
+          },
+          "UploadResourceLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "UploadResourceLambdaVersion0uqpq7qDbZS0NmVcP6I1ebUSQDQ41zqIbdLAbYR0CU"
+            },
+            "Export": {
+              "Name": "sls-three-drive-dev-UploadResourceLambdaFunctionQualifiedArn"
+            }
+          },
+          "ServiceEndpoint": {
+            "Description": "URL of the service endpoint",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Ref": "ApiGatewayRestApi"
+                  },
+                  ".execute-api.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix"
+                  },
+                  "/dev"
+                ]
+              ]
+            },
+            "Export": {
+              "Name": "sls-three-drive-dev-ServiceEndpoint"
+            }
+          }
+        }
+      },
+      "coreCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ServerlessDeploymentBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:*",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Resource": [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            }
+                          ]
+                        ]
+                      }
+                    ],
+                    "Condition": {
+                      "Bool": {
+                        "aws:SecureTransport": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "pluginsData": {},
+    "functions": {
+      "login": {
+        "handler": "login/login.login",
+        "package": {
+          "include": [
+            "login/**"
+          ],
+          "artifact": "D:\\FTN\\VI semestar\\RUO\\Projekat\\ThreeDrive\\back\\.serverless\\login.zip"
+        },
+        "events": [
+          {
+            "http": {
+              "path": "login",
+              "method": "post",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "three-drive-dev-login",
+        "memory": 128,
+        "timeout": 10,
+        "runtime": "python3.10",
+        "vpc": {},
+        "versionLogicalId": "LoginLambdaVersionu5SPjIPn8ouNO2jcFLHiJBRhV7bY9ZhEscN3RDkTr4"
+      },
+      "registration": {
+        "handler": "registration/registration.registration",
+        "package": {
+          "include": [
+            "registration/**"
+          ],
+          "artifact": "D:\\FTN\\VI semestar\\RUO\\Projekat\\ThreeDrive\\back\\.serverless\\registration.zip"
+        },
+        "events": [
+          {
+            "http": {
+              "path": "registration",
+              "method": "post",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "three-drive-dev-registration",
+        "memory": 128,
+        "timeout": 10,
+        "runtime": "python3.10",
+        "vpc": {},
+        "versionLogicalId": "RegistrationLambdaVersion6hZOjQgmAhrk4tuIbXh3Ag7WL1IasQFJstFdDV9Iwos"
+      },
+      "uploadResource": {
+        "handler": "uploadResource/uploadResource.upload",
+        "package": {
+          "include": [
+            "uploadResource/**"
+          ],
+          "artifact": "D:\\FTN\\VI semestar\\RUO\\Projekat\\ThreeDrive\\back\\.serverless\\uploadResource.zip"
+        },
+        "events": [
+          {
+            "http": {
+              "path": "upload",
+              "method": "post",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "three-drive-dev-uploadResource",
+        "memory": 128,
+        "timeout": 10,
+        "runtime": "python3.10",
+        "vpc": {},
+        "versionLogicalId": "UploadResourceLambdaVersion0uqpq7qDbZS0NmVcP6I1ebUSQDQ41zqIbdLAbYR0CU"
+      }
+    },
+    "resources": {
+      "Resources": {
+        "usersTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": "Users",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "username",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "birthdate",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "email",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "name",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "password",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "surname",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "username",
+                "KeyType": "HASH"
+              }
+            ],
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 5,
+              "WriteCapacityUnits": 5
+            }
+          }
+        },
+        "directoriesTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": "Directory",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "path",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "resources",
+                "AttributeType": "L"
+              },
+              {
+                "AttributeName": "ownerId",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "users",
+                "AttributeType": "L"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "path",
+                "KeyType": "HASH"
+              }
+            ],
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 5,
+              "WriteCapacityUnits": 5
+            }
+          }
+        },
+        "resourcesTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": "Resources",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "path",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "extension",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "mime",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "name",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "owner",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "size",
+                "AttributeType": "N"
+              },
+              {
+                "AttributeName": "resourcesId",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "timeModified",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "timeUploaded",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "path",
+                "KeyType": "HASH"
+              }
+            ],
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 5,
+              "WriteCapacityUnits": 5
+            }
+          }
+        },
+        "resourcesThreeCloud": {
+          "Type": "AWS::S3::Bucket",
+          "Properties": {
+            "BucketName": "resources-three-cloud"
+          }
+        }
+      },
+      "Outputs": {}
+    },
+    "configValidationMode": "warn",
+    "serviceFilename": "serverless.yml",
+    "initialServerlessConfig": {
+      "service": "three-drive",
+      "frameworkVersion": "3",
+      "provider": {
+        "$ref": "$[\"service\"][\"provider\"]"
+      },
+      "package": {
+        "individually": true,
+        "patterns": [
+          "!**/**",
+          "utility/**"
+        ],
+        "artifactsS3KeyDirname": "serverless/three-drive/dev/code-artifacts",
+        "artifactDirectoryName": "serverless/three-drive/dev/1684677331245-2023-05-21T13:55:31.245Z"
+      },
+      "functions": {
+        "$ref": "$[\"service\"][\"functions\"]"
+      },
+      "resources": {
+        "$ref": "$[\"service\"][\"resources\"]"
+      }
+    },
+    "layers": {},
+    "isDashboardMonitoringPreconfigured": false
+  },
+  "package": {
+    "individually": true,
+    "artifactDirectoryName": "serverless/three-drive/dev/1684677331245-2023-05-21T13:55:31.245Z",
+    "artifact": ""
+  }
+}

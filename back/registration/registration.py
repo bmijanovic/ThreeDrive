@@ -5,8 +5,9 @@ import re
 from hashlib import sha256
 from dateutil.parser import parse
 
+from utility.utils import create_response
 
-def lambda_handler(event, context):
+def registration(event, context):
     try:
         username = event['username']
         password = event['password']
@@ -15,23 +16,34 @@ def lambda_handler(event, context):
         name = event['name']
         surname = event['surname']
     except (KeyError, json.decoder.JSONDecodeError):
-        return {
-            'statusCode': 400,
-            'body': json.dumps('Invalid request body')
+        body = {
+            'data': json.dumps('Invalid request body')
         }
+        return create_response(400, body)
+        # return {
+        #     'statusCode': 400,
+        #     'body': json.dumps('Invalid request body')
+        # }
 
     try:
         registration(username, password, email, birthdate, name, surname)
-    except ValueError as err:
-        return {
-            'statusCode': 400,
-            'body': json.dumps(str(err))
+        body = {
+            'data': json.dumps('User registration successful')
         }
-
-    return {
-        'statusCode': 200,
-        'body': json.dumps('User registration successful')
-    }
+        return create_response(200, body)
+        # return {
+        #     'statusCode': 200,
+        #     'body': json.dumps('User registration successful')
+        # }
+    except ValueError as err:
+        body = {
+            'data': json.dumps(str(err))
+        }
+        return create_response(400, body)
+        # return {
+        #     'statusCode': 400,
+        #     'body': json.dumps(str(err))
+        # }
 
 
 def registration(username, password, email, birthdate, name, surname):

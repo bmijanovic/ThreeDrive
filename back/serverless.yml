@@ -1,0 +1,167 @@
+service: three-drive
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.10
+  stage: dev
+  region: eu-north-1
+  memorySize: 128
+  timeout: 10
+  environment:
+    USERS_TABLE_NAME:
+      Ref: usersTable
+    RESOURCES_TABLE_NAME:
+      Ref: resourcesTable
+    DIRECTORIES_TABLE_NAME:
+      Ref: directoriesTable
+    RESOURCES_BUCKET_NAME:
+      Ref: resourcesThreeCloud
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "Fn::GetAtt": [ usersTable, Arn ]
+        - "Fn::GetAtt": [ resourcesTable, Arn ]
+        - "Fn::GetAtt": [ directoriesTable, Arn ]
+
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+        - s3:ListBucket
+        - s3:DeleteObject
+      Resource:
+        - "arn:aws:s3:::resources-three-cloud"
+        - "arn:aws:s3:::resources-three-cloud/*"
+
+
+package:
+  individually: true
+  patterns:
+    - '!**/**'
+    - 'utility/**'
+
+functions:
+  login:
+    handler: login/login.login
+    package:
+      include:
+        - 'login/**'
+    events:
+      - http:
+          path: login
+          method: post
+          cors: true
+
+  registration:
+    handler: registration/registration.registration
+    package:
+      include:
+        - 'registration/**'
+    events:
+      - http:
+          path: registration
+          method: post
+          cors: true
+
+  uploadResource:
+    handler: uploadResource/uploadResource.upload
+    package:
+      include:
+        - 'uploadResource/**'
+    events:
+      - http:
+          path: upload
+          method: post
+          cors: true
+
+
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Users
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: birthdate
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
+          - AttributeName: password
+            AttributeType: S
+          - AttributeName: surname
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+
+    directoriesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Directory
+        AttributeDefinitions:
+          - AttributeName: path
+            AttributeType: S
+          - AttributeName: resources
+            AttributeType: L
+          - AttributeName: ownerId
+            AttributeType: S
+          - AttributeName: users
+            AttributeType: L
+        KeySchema:
+          - AttributeName: path
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+
+    resourcesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Resources
+        AttributeDefinitions:
+          - AttributeName: path
+            AttributeType: S
+          - AttributeName: extension
+            AttributeType: S
+          - AttributeName: mime
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
+          - AttributeName: owner
+            AttributeType: S
+          - AttributeName: size
+            AttributeType: N
+          - AttributeName: resourcesId
+            AttributeType: S
+          - AttributeName: timeModified
+            AttributeType: S
+          - AttributeName: timeUploaded
+            AttributeType: S
+        KeySchema:
+          - AttributeName: path
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+
+    resourcesThreeCloud:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: resources-three-cloud
