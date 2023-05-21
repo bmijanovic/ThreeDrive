@@ -1,4 +1,5 @@
 import json
+import os
 import boto3
 import uuid
 import re
@@ -7,14 +8,18 @@ from dateutil.parser import parse
 
 from utility.utils import create_response
 
+table_name = os.environ['USERS_TABLE_NAME']
+
+
 def registration(event, context):
     try:
-        username = event['username']
-        password = event['password']
-        email = event['email']
-        birthdate = event['birthdate']
-        name = event['name']
-        surname = event['surname']
+        body = json.loads(event['body'])
+        username = body['username']
+        password = body['password']
+        email = body['email']
+        birthdate = body['birthdate']
+        name = body['name']
+        surname = body['surname']
     except (KeyError, json.decoder.JSONDecodeError):
         body = {
             'data': json.dumps('Invalid request body')
@@ -26,7 +31,7 @@ def registration(event, context):
         # }
 
     try:
-        registration(username, password, email, birthdate, name, surname)
+        register(username, password, email, birthdate, name, surname)
         body = {
             'data': json.dumps('User registration successful')
         }
@@ -46,7 +51,7 @@ def registration(event, context):
         # }
 
 
-def registration(username, password, email, birthdate, name, surname):
+def register(username, password, email, birthdate, name, surname):
     # Validate user data
     if not username or not password or not email or not birthdate or not name or not surname:
         raise ValueError("All fields are required!")
@@ -98,7 +103,7 @@ def does_user_exist(username, email):
 
 def find_user_by_username(username):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('Users')
+    table = dynamodb.Table(table_name)
     response = table.scan(
         FilterExpression="username = :username",
         ExpressionAttributeValues={
@@ -110,7 +115,7 @@ def find_user_by_username(username):
 
 def find_user_by_email(email):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('Users')
+    table = dynamodb.Table(table_name)
     response = table.scan(
         FilterExpression="email = :email",
         ExpressionAttributeValues={
@@ -122,5 +127,5 @@ def find_user_by_email(email):
 
 def insert_user_in_dynamo(user_item):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('Users')
+    table = dynamodb.Table(table_name)
     table.put_item(Item=user_item)

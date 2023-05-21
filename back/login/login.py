@@ -1,14 +1,19 @@
 import json
+import os
+
 import boto3
 import hashlib
 from hashlib import sha256
 from utility.utils import create_response
 
+table_name = os.environ['USERS_TABLE_NAME']
+
 
 def login(event, context):
     try:
-        username = event['username']
-        password = event['password']
+        body = json.loads(event['body'])
+        username = body['username']
+        password = body['password']
         results = find_user_by_username(username)
         if results:
             user = results[0]
@@ -43,7 +48,7 @@ def login(event, context):
 
 def find_user_by_username(username):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('Users')
+    table = dynamodb.Table(table_name)
     response = table.scan(
         FilterExpression="username = :username",
         ExpressionAttributeValues={

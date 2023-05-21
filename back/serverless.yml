@@ -5,7 +5,7 @@ provider:
   name: aws
   runtime: python3.10
   stage: dev
-  region: eu-north-1
+  region: eu-central-1
   memorySize: 128
   timeout: 10
   environment:
@@ -42,6 +42,12 @@ provider:
         - "arn:aws:s3:::resources-three-cloud"
         - "arn:aws:s3:::resources-three-cloud/*"
 
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+    zip: true
+    requirementsFile: requirements.txt
 
 package:
   individually: true
@@ -94,22 +100,12 @@ resources:
         AttributeDefinitions:
           - AttributeName: username
             AttributeType: S
-          - AttributeName: birthdate
-            AttributeType: S
-          - AttributeName: email
-            AttributeType: S
-          - AttributeName: name
-            AttributeType: S
-          - AttributeName: password
-            AttributeType: S
-          - AttributeName: surname
-            AttributeType: S
         KeySchema:
           - AttributeName: username
             KeyType: HASH
         ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 
     directoriesTable:
       Type: AWS::DynamoDB::Table
@@ -118,18 +114,12 @@ resources:
         AttributeDefinitions:
           - AttributeName: path
             AttributeType: S
-          - AttributeName: resources
-            AttributeType: L
-          - AttributeName: ownerId
-            AttributeType: S
-          - AttributeName: users
-            AttributeType: L
         KeySchema:
           - AttributeName: path
             KeyType: HASH
         ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 
     resourcesTable:
       Type: AWS::DynamoDB::Table
@@ -138,28 +128,12 @@ resources:
         AttributeDefinitions:
           - AttributeName: path
             AttributeType: S
-          - AttributeName: extension
-            AttributeType: S
-          - AttributeName: mime
-            AttributeType: S
-          - AttributeName: name
-            AttributeType: S
-          - AttributeName: owner
-            AttributeType: S
-          - AttributeName: size
-            AttributeType: N
-          - AttributeName: resourcesId
-            AttributeType: S
-          - AttributeName: timeModified
-            AttributeType: S
-          - AttributeName: timeUploaded
-            AttributeType: S
         KeySchema:
           - AttributeName: path
             KeyType: HASH
         ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 
     resourcesThreeCloud:
       Type: AWS::S3::Bucket

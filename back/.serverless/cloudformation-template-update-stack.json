@@ -219,7 +219,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/three-drive/dev/1684677331245-2023-05-21T13:55:31.245Z/login.zip"
+          "S3Key": "serverless/three-drive/dev/1684683204571-2023-05-21T15:33:24.571Z/login.zip"
         },
         "Handler": "login/login.login",
         "Runtime": "python3.10",
@@ -260,7 +260,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/three-drive/dev/1684677331245-2023-05-21T13:55:31.245Z/registration.zip"
+          "S3Key": "serverless/three-drive/dev/1684683204571-2023-05-21T15:33:24.571Z/registration.zip"
         },
         "Handler": "registration/registration.registration",
         "Runtime": "python3.10",
@@ -301,7 +301,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/three-drive/dev/1684677331245-2023-05-21T13:55:31.245Z/uploadResource.zip"
+          "S3Key": "serverless/three-drive/dev/1684683204571-2023-05-21T15:33:24.571Z/uploadResource.zip"
         },
         "Handler": "uploadResource/uploadResource.upload",
         "Runtime": "python3.10",
@@ -335,34 +335,34 @@
         "UploadResourceLogGroup"
       ]
     },
-    "RegistrationLambdaVersion6hZOjQgmAhrk4tuIbXh3Ag7WL1IasQFJstFdDV9Iwos": {
-      "Type": "AWS::Lambda::Version",
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "FunctionName": {
-          "Ref": "RegistrationLambdaFunction"
-        },
-        "CodeSha256": "knBEjTajRlUYSkHR7ytRQDswYs2Y/DUICwnLJnLbdIQ="
-      }
-    },
-    "LoginLambdaVersionu5SPjIPn8ouNO2jcFLHiJBRhV7bY9ZhEscN3RDkTr4": {
+    "LoginLambdaVersionkrNZER6PRngFynzcDUeK4fcLZzAwhDkek385cicI7vw": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "LoginLambdaFunction"
         },
-        "CodeSha256": "dv/aJwxT61L4caHbEDZfZ8AqsAdzQ86BquFxNQQcimo="
+        "CodeSha256": "ptmmCRyEcY0lIyYxItyi6ecp0hFfyZfy9QzM+1Bl9ZI="
       }
     },
-    "UploadResourceLambdaVersion0uqpq7qDbZS0NmVcP6I1ebUSQDQ41zqIbdLAbYR0CU": {
+    "RegistrationLambdaVersionsXhhKeAHum3j1ZBiO53IqUJy5fVwhvMJ9kRuj3Wlsw": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "RegistrationLambdaFunction"
+        },
+        "CodeSha256": "tYpTWRD78ntERwHplZ0geWl+dryWvitqs/FonxjgfRU="
+      }
+    },
+    "UploadResourceLambdaVersionYIiBNcmgg9Dav3Q5WndUnuerirBLND2LYEYrUwR86I": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "UploadResourceLambdaFunction"
         },
-        "CodeSha256": "tlBRLiSI9GbE47QYx86HuApzx+eUTlpNvd327Ba33qY="
+        "CodeSha256": "hqw++2B99xRLkxYvOkXiyli2ZzEQaApg1ZkalCILxNo="
       }
     },
     "ApiGatewayRestApi": {
@@ -695,7 +695,7 @@
         "UploadResourceLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1684677330210": {
+    "ApiGatewayDeployment1684683203443": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -831,26 +831,6 @@
           {
             "AttributeName": "username",
             "AttributeType": "S"
-          },
-          {
-            "AttributeName": "birthdate",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "email",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "name",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "password",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "surname",
-            "AttributeType": "S"
           }
         ],
         "KeySchema": [
@@ -860,8 +840,8 @@
           }
         ],
         "ProvisionedThroughput": {
-          "ReadCapacityUnits": 5,
-          "WriteCapacityUnits": 5
+          "ReadCapacityUnits": 1,
+          "WriteCapacityUnits": 1
         }
       }
     },
@@ -873,18 +853,6 @@
           {
             "AttributeName": "path",
             "AttributeType": "S"
-          },
-          {
-            "AttributeName": "resources",
-            "AttributeType": "L"
-          },
-          {
-            "AttributeName": "ownerId",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "users",
-            "AttributeType": "L"
           }
         ],
         "KeySchema": [
@@ -894,8 +862,8 @@
           }
         ],
         "ProvisionedThroughput": {
-          "ReadCapacityUnits": 5,
-          "WriteCapacityUnits": 5
+          "ReadCapacityUnits": 1,
+          "WriteCapacityUnits": 1
         }
       }
     },
@@ -907,38 +875,6 @@
           {
             "AttributeName": "path",
             "AttributeType": "S"
-          },
-          {
-            "AttributeName": "extension",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "mime",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "name",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "owner",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "size",
-            "AttributeType": "N"
-          },
-          {
-            "AttributeName": "resourcesId",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "timeModified",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "timeUploaded",
-            "AttributeType": "S"
           }
         ],
         "KeySchema": [
@@ -948,8 +884,8 @@
           }
         ],
         "ProvisionedThroughput": {
-          "ReadCapacityUnits": 5,
-          "WriteCapacityUnits": 5
+          "ReadCapacityUnits": 1,
+          "WriteCapacityUnits": 1
         }
       }
     },
@@ -969,28 +905,28 @@
         "Name": "sls-three-drive-dev-ServerlessDeploymentBucketName"
       }
     },
-    "RegistrationLambdaFunctionQualifiedArn": {
-      "Description": "Current Lambda function version",
-      "Value": {
-        "Ref": "RegistrationLambdaVersion6hZOjQgmAhrk4tuIbXh3Ag7WL1IasQFJstFdDV9Iwos"
-      },
-      "Export": {
-        "Name": "sls-three-drive-dev-RegistrationLambdaFunctionQualifiedArn"
-      }
-    },
     "LoginLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "LoginLambdaVersionu5SPjIPn8ouNO2jcFLHiJBRhV7bY9ZhEscN3RDkTr4"
+        "Ref": "LoginLambdaVersionkrNZER6PRngFynzcDUeK4fcLZzAwhDkek385cicI7vw"
       },
       "Export": {
         "Name": "sls-three-drive-dev-LoginLambdaFunctionQualifiedArn"
       }
     },
+    "RegistrationLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "RegistrationLambdaVersionsXhhKeAHum3j1ZBiO53IqUJy5fVwhvMJ9kRuj3Wlsw"
+      },
+      "Export": {
+        "Name": "sls-three-drive-dev-RegistrationLambdaFunctionQualifiedArn"
+      }
+    },
     "UploadResourceLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "UploadResourceLambdaVersion0uqpq7qDbZS0NmVcP6I1ebUSQDQ41zqIbdLAbYR0CU"
+        "Ref": "UploadResourceLambdaVersionYIiBNcmgg9Dav3Q5WndUnuerirBLND2LYEYrUwR86I"
       },
       "Export": {
         "Name": "sls-three-drive-dev-UploadResourceLambdaFunctionQualifiedArn"

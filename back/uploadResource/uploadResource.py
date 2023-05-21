@@ -1,5 +1,6 @@
 import json
 import base64
+import os
 import uuid
 import boto3
 import filetype
@@ -11,12 +12,15 @@ import math
 
 from utility.utils import create_response
 
+table_name = os.environ['RESOURCES_TABLE_NAME']
+bucket_name = os.environ['RESOURCES_BUCKET_NAME']
 
 def upload(event, context):
     db = boto3.client('dynamodb')
-    fileBytesStr = event['image']
-    fileName = event['name']
-    tags = event["tags"]
+    body = json.loads(event['body'])
+    fileBytesStr = body['image']
+    fileName = body['name']
+    tags = body["tags"]
     plainName = fileName
     file_b64dec = base64.b64decode(fileBytesStr)
     fileBytes = bytes(file_b64dec)
@@ -58,10 +62,10 @@ def upload(event, context):
 
 def insert_resource_in_dynamo(resource_item):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('ResourceDetails')
+    table = dynamodb.Table(table_name)
     table.put_item(Item=resource_item)
 
 
 def insert_resource_in_s3(fileKey, fileBytes):
     s3 = boto3.client('s3')
-    s3.put_object(Bucket="resources-three-cloud", Key=f'{fileKey}', Body=fileBytes)
+    s3.put_object(Bucket=bucket_name, Key=f'{fileKey}', Body=fileBytes)
