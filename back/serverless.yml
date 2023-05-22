@@ -43,17 +43,13 @@ provider:
         - "arn:aws:s3:::resources-three-cloud/*"
 
 
-custom:
-  pythonRequirements:
-    dockerizePip: non-linux
-    zip: true
-    requirementsFile: requirements.txt
-
 package:
   individually: true
   patterns:
     - '!**/**'
     - 'utility/**'
+    - 'venv/**'
+
 
 functions:
   login:
@@ -88,7 +84,6 @@ functions:
           path: upload
           method: post
           cors: true
-
 
 
 resources:
@@ -139,3 +134,13 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: resources-three-cloud
+
+
+
+plugins:
+  - serverless-python-requirements
+
+
+custom:
+  pythonRequirements:
+    filename: requirements.txt

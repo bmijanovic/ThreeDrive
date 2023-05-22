@@ -15,13 +15,20 @@ from utility.utils import create_response
 table_name = os.environ['RESOURCES_TABLE_NAME']
 bucket_name = os.environ['RESOURCES_BUCKET_NAME']
 
+
 def upload(event, context):
-    db = boto3.client('dynamodb')
-    body = json.loads(event['body'])
-    fileBytesStr = body['image']
-    fileName = body['name']
-    tags = body["tags"]
-    plainName = fileName
+    try:
+        db = boto3.client('dynamodb')
+        body = json.loads(event['body'])
+        fileBytesStr = body['image']
+        fileName = body['name']
+        tags = body["tags"]
+        plainName = fileName
+    except (KeyError, json.decoder.JSONDecodeError):
+        body = {
+            'data': json.dumps('Invalid request body')
+        }
+        return create_response(400, body)
     file_b64dec = base64.b64decode(fileBytesStr)
     fileBytes = bytes(file_b64dec)
 
