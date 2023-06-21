@@ -9,9 +9,14 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:threecloud/screens/upload_file_screen.dart';
 
 import '../models/resource.dart';
+import '../screens/folder_creating_popup.dart';
 
 class FloatingButton extends StatelessWidget {
-  const FloatingButton({super.key});
+  final String currentPath;
+
+  const FloatingButton({super.key, required String this.currentPath});
+
+
   SpeedDial buildSpeedDial(BuildContext context) {
     return SpeedDial(
       animatedIconTheme: IconThemeData(size: 28.0),
@@ -31,7 +36,7 @@ class FloatingButton extends StatelessWidget {
         SpeedDialChild(
           child: Icon(Icons.create_new_folder_outlined, color: Colors.white),
           backgroundColor: Colors.blueAccent,
-          onTap: ()=>{},
+          onTap: ()=> _showFolderNamePopup(context, currentPath),
           label: 'Add new folder',
           labelStyle:
           TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
@@ -41,6 +46,8 @@ class FloatingButton extends StatelessWidget {
       child: Icon(Icons.add),
     );
   }
+
+
   Future<void> _selectFile(BuildContext context) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
@@ -56,6 +63,20 @@ class FloatingButton extends StatelessWidget {
       // User canceled the picker
     }
   }
+
+  Future<void> _showFolderNamePopup(BuildContext context, String currentPath) async {
+    final folderName = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => FolderNamePopup(currentPath: currentPath),
+    );
+
+    if (folderName != null) {
+      // Handle the folderName
+      print('Folder Name: $folderName');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

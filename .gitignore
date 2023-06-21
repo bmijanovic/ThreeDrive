@@ -512,6 +512,7 @@ dist
 
 ### Serverless ###
 # Ignore build directory
-.serverless
+/.serverless/
 
 # End of https://www.toptal.com/developers/gitignore/api/serverless,node
+back/venv/**
