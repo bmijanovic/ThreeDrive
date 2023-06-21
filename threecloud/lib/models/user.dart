@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/io_client.dart';
+import 'package:threecloud/url.dart';
 
 
 
@@ -23,7 +24,7 @@ class User {
       ((X509Certificate cert, String host, int port) => trustSelfSigned);
     IOClient ioClient = IOClient(httpClient);
     var response = await ioClient.post(
-      Uri.parse('https://kf8dco6sv9.execute-api.eu-north-1.amazonaws.com/test/registration'),
+      Uri.parse(url+'registration'),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
       },
@@ -39,7 +40,7 @@ class User {
       ),
     );
     var res = jsonDecode(response.body);
-    if (res['statusCode'] == 200) {
+    if (response.statusCode == 200) {
       // var userData = jsonDecode(response.body);
       // user = User(userData['id'], userData['firstName'], userData['lastName'],
       //     userData['email'], userData['password'], 0.0);
@@ -58,7 +59,7 @@ class User {
       ((X509Certificate cert, String host, int port) => trustSelfSigned);
     IOClient ioClient = IOClient(httpClient);
     var response = await ioClient.post(
-      Uri.parse('https://kf8dco6sv9.execute-api.eu-north-1.amazonaws.com/test/login'),
+      Uri.parse(url+'login'),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
       },
@@ -70,7 +71,7 @@ class User {
       ),
     );
     var res = jsonDecode(response.body);
-    if (res['statusCode'] == 200) {
+    if (response.statusCode == 200) {
       return "1";
     } else {
       throw StateError(res['body']);

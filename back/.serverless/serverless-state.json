@@ -255,7 +255,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/three-drive/dev/1684683204571-2023-05-21T15:33:24.571Z/login.zip"
+                "S3Key": "serverless/three-drive/dev/1687364735454-2023-06-21T16:25:35.454Z/login.zip"
               },
               "Handler": "login/login.login",
               "Runtime": "python3.10",
@@ -296,7 +296,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/three-drive/dev/1684683204571-2023-05-21T15:33:24.571Z/registration.zip"
+                "S3Key": "serverless/three-drive/dev/1687364735454-2023-06-21T16:25:35.454Z/registration.zip"
               },
               "Handler": "registration/registration.registration",
               "Runtime": "python3.10",
@@ -337,7 +337,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/three-drive/dev/1684683204571-2023-05-21T15:33:24.571Z/uploadResource.zip"
+                "S3Key": "serverless/three-drive/dev/1687364735454-2023-06-21T16:25:35.454Z/uploadResource.zip"
               },
               "Handler": "uploadResource/uploadResource.upload",
               "Runtime": "python3.10",
@@ -371,34 +371,34 @@
               "UploadResourceLogGroup"
             ]
           },
-          "LoginLambdaVersionkrNZER6PRngFynzcDUeK4fcLZzAwhDkek385cicI7vw": {
+          "LoginLambdaVersion5UJvdOTJteKJlxeeYeaHRlaKBJuYKnevNKKlKoXv4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "LoginLambdaFunction"
               },
-              "CodeSha256": "ptmmCRyEcY0lIyYxItyi6ecp0hFfyZfy9QzM+1Bl9ZI="
+              "CodeSha256": "I3g3OFQa05/vH7EKzNVUGf5Kx2yyH4mlGQZzAKEly30="
             }
           },
-          "RegistrationLambdaVersionsXhhKeAHum3j1ZBiO53IqUJy5fVwhvMJ9kRuj3Wlsw": {
+          "RegistrationLambdaVersionQkE3nEcIpFH8M66BdibnJQRSAeQUhtlOazah6uFO2JY": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "RegistrationLambdaFunction"
               },
-              "CodeSha256": "tYpTWRD78ntERwHplZ0geWl+dryWvitqs/FonxjgfRU="
+              "CodeSha256": "CQlDxYM0JLt4SUoBz4HXqvhBhes+eIBJtBo5r7fpT2s="
             }
           },
-          "UploadResourceLambdaVersionYIiBNcmgg9Dav3Q5WndUnuerirBLND2LYEYrUwR86I": {
+          "UploadResourceLambdaVersion5BDNl5Xgp9SfzRsWorMsz5IijuPK3PB1VaECArUMKM": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "UploadResourceLambdaFunction"
               },
-              "CodeSha256": "hqw++2B99xRLkxYvOkXiyli2ZzEQaApg1ZkalCILxNo="
+              "CodeSha256": "SrmiCqYu7KLUt2Qpbss0Bzd9R8Rf4cqVYgML+cjH9aE="
             }
           },
           "ApiGatewayRestApi": {
@@ -731,7 +731,7 @@
               "UploadResourceLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1684683203443": {
+          "ApiGatewayDeployment1687364729532": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -944,7 +944,7 @@
           "LoginLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "LoginLambdaVersionkrNZER6PRngFynzcDUeK4fcLZzAwhDkek385cicI7vw"
+              "Ref": "LoginLambdaVersion5UJvdOTJteKJlxeeYeaHRlaKBJuYKnevNKKlKoXv4"
             },
             "Export": {
               "Name": "sls-three-drive-dev-LoginLambdaFunctionQualifiedArn"
@@ -953,7 +953,7 @@
           "RegistrationLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "RegistrationLambdaVersionsXhhKeAHum3j1ZBiO53IqUJy5fVwhvMJ9kRuj3Wlsw"
+              "Ref": "RegistrationLambdaVersionQkE3nEcIpFH8M66BdibnJQRSAeQUhtlOazah6uFO2JY"
             },
             "Export": {
               "Name": "sls-three-drive-dev-RegistrationLambdaFunctionQualifiedArn"
@@ -962,7 +962,7 @@
           "UploadResourceLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "UploadResourceLambdaVersionYIiBNcmgg9Dav3Q5WndUnuerirBLND2LYEYrUwR86I"
+              "Ref": "UploadResourceLambdaVersion5BDNl5Xgp9SfzRsWorMsz5IijuPK3PB1VaECArUMKM"
             },
             "Export": {
               "Name": "sls-three-drive-dev-UploadResourceLambdaFunctionQualifiedArn"
@@ -1082,11 +1082,12 @@
     },
     "custom": {
       "pythonRequirements": {
-        "dockerizePip": "non-linux",
-        "zip": true,
-        "requirementsFile": "requirements.txt"
+        "filename": "requirements.txt"
       }
     },
+    "plugins": [
+      "serverless-python-requirements"
+    ],
     "pluginsData": {},
     "functions": {
       "login": {
@@ -1095,7 +1096,7 @@
           "include": [
             "login/**"
           ],
-          "artifact": "D:\\FTN\\VI semestar\\RUO\\Projekat\\ThreeDrive\\back\\.serverless\\login.zip"
+          "artifact": "C:\\Users\\vukas\\Documents\\GitHub\\ThreeDrive\\back\\.serverless\\login.zip"
         },
         "events": [
           {
@@ -1124,11 +1125,12 @@
           }
         ],
         "name": "three-drive-dev-login",
+        "module": ".",
         "memory": 128,
         "timeout": 10,
         "runtime": "python3.10",
         "vpc": {},
-        "versionLogicalId": "LoginLambdaVersionkrNZER6PRngFynzcDUeK4fcLZzAwhDkek385cicI7vw"
+        "versionLogicalId": "LoginLambdaVersion5UJvdOTJteKJlxeeYeaHRlaKBJuYKnevNKKlKoXv4"
       },
       "registration": {
         "handler": "registration/registration.registration",
@@ -1136,7 +1138,7 @@
           "include": [
             "registration/**"
           ],
-          "artifact": "D:\\FTN\\VI semestar\\RUO\\Projekat\\ThreeDrive\\back\\.serverless\\registration.zip"
+          "artifact": "C:\\Users\\vukas\\Documents\\GitHub\\ThreeDrive\\back\\.serverless\\registration.zip"
         },
         "events": [
           {
@@ -1165,11 +1167,12 @@
           }
         ],
         "name": "three-drive-dev-registration",
+        "module": ".",
         "memory": 128,
         "timeout": 10,
         "runtime": "python3.10",
         "vpc": {},
-        "versionLogicalId": "RegistrationLambdaVersionsXhhKeAHum3j1ZBiO53IqUJy5fVwhvMJ9kRuj3Wlsw"
+        "versionLogicalId": "RegistrationLambdaVersionQkE3nEcIpFH8M66BdibnJQRSAeQUhtlOazah6uFO2JY"
       },
       "uploadResource": {
         "handler": "uploadResource/uploadResource.upload",
@@ -1177,7 +1180,7 @@
           "include": [
             "uploadResource/**"
           ],
-          "artifact": "D:\\FTN\\VI semestar\\RUO\\Projekat\\ThreeDrive\\back\\.serverless\\uploadResource.zip"
+          "artifact": "C:\\Users\\vukas\\Documents\\GitHub\\ThreeDrive\\back\\.serverless\\uploadResource.zip"
         },
         "events": [
           {
@@ -1206,11 +1209,12 @@
           }
         ],
         "name": "three-drive-dev-uploadResource",
+        "module": ".",
         "memory": 128,
         "timeout": 10,
         "runtime": "python3.10",
         "vpc": {},
-        "versionLogicalId": "UploadResourceLambdaVersionYIiBNcmgg9Dav3Q5WndUnuerirBLND2LYEYrUwR86I"
+        "versionLogicalId": "UploadResourceLambdaVersion5BDNl5Xgp9SfzRsWorMsz5IijuPK3PB1VaECArUMKM"
       }
     },
     "resources": {
@@ -1298,23 +1302,27 @@
       "provider": {
         "$ref": "$[\"service\"][\"provider\"]"
       },
-      "custom": {
-        "$ref": "$[\"service\"][\"custom\"]"
-      },
       "package": {
         "individually": true,
         "patterns": [
           "!**/**",
-          "utility/**"
+          "utility/**",
+          "venv/**"
         ],
         "artifactsS3KeyDirname": "serverless/three-drive/dev/code-artifacts",
-        "artifactDirectoryName": "serverless/three-drive/dev/1684683204571-2023-05-21T15:33:24.571Z"
+        "artifactDirectoryName": "serverless/three-drive/dev/1687364735454-2023-06-21T16:25:35.454Z"
       },
       "functions": {
         "$ref": "$[\"service\"][\"functions\"]"
       },
       "resources": {
         "$ref": "$[\"service\"][\"resources\"]"
+      },
+      "plugins": {
+        "$ref": "$[\"service\"][\"plugins\"]"
+      },
+      "custom": {
+        "$ref": "$[\"service\"][\"custom\"]"
       }
     },
     "layers": {},
@@ -1322,7 +1330,7 @@
   },
   "package": {
     "individually": true,
-    "artifactDirectoryName": "serverless/three-drive/dev/1684683204571-2023-05-21T15:33:24.571Z",
+    "artifactDirectoryName": "serverless/three-drive/dev/1687364735454-2023-06-21T16:25:35.454Z",
     "artifact": ""
   }
 }

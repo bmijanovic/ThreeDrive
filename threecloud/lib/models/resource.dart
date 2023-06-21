@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/io_client.dart';
+import 'package:threecloud/url.dart';
 
 class Resource {
   static Future<String> upload(String name, String image,List<Map<String,String>> tags) async
@@ -14,7 +15,7 @@ class Resource {
     IOClient ioClient = IOClient(httpClient);
     var response = await ioClient.post(
       Uri.parse(
-          'https://kf8dco6sv9.execute-api.eu-north-1.amazonaws.com/test/upload'),
+          url+"upload"),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
       },
@@ -27,7 +28,7 @@ class Resource {
       ),
     );
     var res = jsonDecode(response.body);
-    if (res['statusCode'] == 200) {
+    if (response.statusCode == 200) {
       return "1";
     } else {
       throw StateError(res['body']);
