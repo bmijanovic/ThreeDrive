@@ -164,6 +164,12 @@
               "LogGroupName": "/aws/lambda/three-drive-dev-uploadResource"
             }
           },
+          "CreateDirectoryLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/three-drive-dev-createDirectory"
+            }
+          },
           "IamRoleLambdaExecution": {
             "Type": "AWS::IAM::Role",
             "Properties": {
@@ -255,7 +261,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/three-drive/dev/1687364735454-2023-06-21T16:25:35.454Z/login.zip"
+                "S3Key": "serverless/three-drive/dev/1687378637392-2023-06-21T20:17:17.392Z/login.zip"
               },
               "Handler": "login/login.login",
               "Runtime": "python3.10",
@@ -296,7 +302,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/three-drive/dev/1687364735454-2023-06-21T16:25:35.454Z/registration.zip"
+                "S3Key": "serverless/three-drive/dev/1687378637392-2023-06-21T20:17:17.392Z/registration.zip"
               },
               "Handler": "registration/registration.registration",
               "Runtime": "python3.10",
@@ -337,7 +343,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/three-drive/dev/1687364735454-2023-06-21T16:25:35.454Z/uploadResource.zip"
+                "S3Key": "serverless/three-drive/dev/1687378637392-2023-06-21T20:17:17.392Z/uploadResource.zip"
               },
               "Handler": "uploadResource/uploadResource.upload",
               "Runtime": "python3.10",
@@ -371,34 +377,85 @@
               "UploadResourceLogGroup"
             ]
           },
-          "LoginLambdaVersion5UJvdOTJteKJlxeeYeaHRlaKBJuYKnevNKKlKoXv4": {
+          "CreateDirectoryLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/three-drive/dev/1687378637392-2023-06-21T20:17:17.392Z/createDirectory.zip"
+              },
+              "Handler": "createDirectory/createDirectory.create",
+              "Runtime": "python3.10",
+              "FunctionName": "three-drive-dev-createDirectory",
+              "MemorySize": 128,
+              "Timeout": 10,
+              "Environment": {
+                "Variables": {
+                  "USERS_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE_NAME\"]"
+                  },
+                  "RESOURCES_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"RESOURCES_TABLE_NAME\"]"
+                  },
+                  "DIRECTORIES_TABLE_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"DIRECTORIES_TABLE_NAME\"]"
+                  },
+                  "RESOURCES_BUCKET_NAME": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"RESOURCES_BUCKET_NAME\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "CreateDirectoryLogGroup"
+            ]
+          },
+          "LoginLambdaVersionvXH85uLlVb87SK76ZcSifIZDPH7WLPZ0el3OF2g1NWg": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "LoginLambdaFunction"
               },
-              "CodeSha256": "I3g3OFQa05/vH7EKzNVUGf5Kx2yyH4mlGQZzAKEly30="
+              "CodeSha256": "ZV2NovZHFYGUu2d0vRhxsCAjoC5hUA3e2qA+qbeFzgU="
             }
           },
-          "RegistrationLambdaVersionQkE3nEcIpFH8M66BdibnJQRSAeQUhtlOazah6uFO2JY": {
+          "RegistrationLambdaVersionZKZZOPBuefZ9WP6p8IcElhJNHwX21V5NNFMNFmwAw4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "RegistrationLambdaFunction"
               },
-              "CodeSha256": "CQlDxYM0JLt4SUoBz4HXqvhBhes+eIBJtBo5r7fpT2s="
+              "CodeSha256": "sevO90QedIGexmIcGIh8aZgDh4EEtPtqNR0MSvi/oH4="
             }
           },
-          "UploadResourceLambdaVersion5BDNl5Xgp9SfzRsWorMsz5IijuPK3PB1VaECArUMKM": {
+          "UploadResourceLambdaVersionHa6ipwgztfRKuWubTLk1jgmE7gyuRdKWla0Be0HRHY": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "UploadResourceLambdaFunction"
               },
-              "CodeSha256": "SrmiCqYu7KLUt2Qpbss0Bzd9R8Rf4cqVYgML+cjH9aE="
+              "CodeSha256": "8guUCT7LlrGT4KDh3d/s4h11I3kEM/CTbHxW4akDCwM="
+            }
+          },
+          "CreateDirectoryLambdaVersionmP987gUZgnP89Bygu0LoucBNBmVKJK78D9riAd7GU": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "CreateDirectoryLambdaFunction"
+              },
+              "CodeSha256": "mFKsmA/riixxJS9H2tQUi9e+YoChdGlG30EURNfoGPo="
             }
           },
           "ApiGatewayRestApi": {
@@ -453,6 +510,21 @@
                 ]
               },
               "PathPart": "upload",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceDirectory": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "directory",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -587,6 +659,51 @@
               },
               "ResourceId": {
                 "Ref": "ApiGatewayResourceUpload"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodDirectoryOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceDirectory"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -731,7 +848,53 @@
               "UploadResourceLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1687364729532": {
+          "ApiGatewayMethodDirectoryPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceDirectory"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "CreateDirectoryLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "CreateDirectoryLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayDeployment1687378566877": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -743,9 +906,11 @@
               "ApiGatewayMethodLoginOptions",
               "ApiGatewayMethodRegistrationOptions",
               "ApiGatewayMethodUploadOptions",
+              "ApiGatewayMethodDirectoryOptions",
               "ApiGatewayMethodLoginPost",
               "ApiGatewayMethodRegistrationPost",
-              "ApiGatewayMethodUploadPost"
+              "ApiGatewayMethodUploadPost",
+              "ApiGatewayMethodDirectoryPost"
             ]
           },
           "LoginLambdaPermissionApiGateway": {
@@ -828,6 +993,43 @@
               "FunctionName": {
                 "Fn::GetAtt": [
                   "UploadResourceLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "CreateDirectoryLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "CreateDirectoryLambdaFunction",
                   "Arn"
                 ]
               },
@@ -944,7 +1146,7 @@
           "LoginLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "LoginLambdaVersion5UJvdOTJteKJlxeeYeaHRlaKBJuYKnevNKKlKoXv4"
+              "Ref": "LoginLambdaVersionvXH85uLlVb87SK76ZcSifIZDPH7WLPZ0el3OF2g1NWg"
             },
             "Export": {
               "Name": "sls-three-drive-dev-LoginLambdaFunctionQualifiedArn"
@@ -953,7 +1155,7 @@
           "RegistrationLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "RegistrationLambdaVersionQkE3nEcIpFH8M66BdibnJQRSAeQUhtlOazah6uFO2JY"
+              "Ref": "RegistrationLambdaVersionZKZZOPBuefZ9WP6p8IcElhJNHwX21V5NNFMNFmwAw4"
             },
             "Export": {
               "Name": "sls-three-drive-dev-RegistrationLambdaFunctionQualifiedArn"
@@ -962,10 +1164,19 @@
           "UploadResourceLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "UploadResourceLambdaVersion5BDNl5Xgp9SfzRsWorMsz5IijuPK3PB1VaECArUMKM"
+              "Ref": "UploadResourceLambdaVersionHa6ipwgztfRKuWubTLk1jgmE7gyuRdKWla0Be0HRHY"
             },
             "Export": {
               "Name": "sls-three-drive-dev-UploadResourceLambdaFunctionQualifiedArn"
+            }
+          },
+          "CreateDirectoryLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "CreateDirectoryLambdaVersionmP987gUZgnP89Bygu0LoucBNBmVKJK78D9riAd7GU"
+            },
+            "Export": {
+              "Name": "sls-three-drive-dev-CreateDirectoryLambdaFunctionQualifiedArn"
             }
           },
           "ServiceEndpoint": {
@@ -1096,7 +1307,7 @@
           "include": [
             "login/**"
           ],
-          "artifact": "C:\\Users\\vukas\\Documents\\GitHub\\ThreeDrive\\back\\.serverless\\login.zip"
+          "artifact": "D:\\FTN\\VI semestar\\RUO\\Projekat\\ThreeDrive\\back\\.serverless\\login.zip"
         },
         "events": [
           {
@@ -1130,7 +1341,7 @@
         "timeout": 10,
         "runtime": "python3.10",
         "vpc": {},
-        "versionLogicalId": "LoginLambdaVersion5UJvdOTJteKJlxeeYeaHRlaKBJuYKnevNKKlKoXv4"
+        "versionLogicalId": "LoginLambdaVersionvXH85uLlVb87SK76ZcSifIZDPH7WLPZ0el3OF2g1NWg"
       },
       "registration": {
         "handler": "registration/registration.registration",
@@ -1138,7 +1349,7 @@
           "include": [
             "registration/**"
           ],
-          "artifact": "C:\\Users\\vukas\\Documents\\GitHub\\ThreeDrive\\back\\.serverless\\registration.zip"
+          "artifact": "D:\\FTN\\VI semestar\\RUO\\Projekat\\ThreeDrive\\back\\.serverless\\registration.zip"
         },
         "events": [
           {
@@ -1172,7 +1383,7 @@
         "timeout": 10,
         "runtime": "python3.10",
         "vpc": {},
-        "versionLogicalId": "RegistrationLambdaVersionQkE3nEcIpFH8M66BdibnJQRSAeQUhtlOazah6uFO2JY"
+        "versionLogicalId": "RegistrationLambdaVersionZKZZOPBuefZ9WP6p8IcElhJNHwX21V5NNFMNFmwAw4"
       },
       "uploadResource": {
         "handler": "uploadResource/uploadResource.upload",
@@ -1180,7 +1391,7 @@
           "include": [
             "uploadResource/**"
           ],
-          "artifact": "C:\\Users\\vukas\\Documents\\GitHub\\ThreeDrive\\back\\.serverless\\uploadResource.zip"
+          "artifact": "D:\\FTN\\VI semestar\\RUO\\Projekat\\ThreeDrive\\back\\.serverless\\uploadResource.zip"
         },
         "events": [
           {
@@ -1214,7 +1425,49 @@
         "timeout": 10,
         "runtime": "python3.10",
         "vpc": {},
-        "versionLogicalId": "UploadResourceLambdaVersion5BDNl5Xgp9SfzRsWorMsz5IijuPK3PB1VaECArUMKM"
+        "versionLogicalId": "UploadResourceLambdaVersionHa6ipwgztfRKuWubTLk1jgmE7gyuRdKWla0Be0HRHY"
+      },
+      "createDirectory": {
+        "handler": "createDirectory/createDirectory.create",
+        "package": {
+          "include": [
+            "createDirectory/**"
+          ],
+          "artifact": "D:\\FTN\\VI semestar\\RUO\\Projekat\\ThreeDrive\\back\\.serverless\\createDirectory.zip"
+        },
+        "events": [
+          {
+            "http": {
+              "path": "directory",
+              "method": "post",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "three-drive-dev-createDirectory",
+        "module": ".",
+        "memory": 128,
+        "timeout": 10,
+        "runtime": "python3.10",
+        "vpc": {},
+        "versionLogicalId": "CreateDirectoryLambdaVersionmP987gUZgnP89Bygu0LoucBNBmVKJK78D9riAd7GU"
       }
     },
     "resources": {
@@ -1310,7 +1563,7 @@
           "venv/**"
         ],
         "artifactsS3KeyDirname": "serverless/three-drive/dev/code-artifacts",
-        "artifactDirectoryName": "serverless/three-drive/dev/1687364735454-2023-06-21T16:25:35.454Z"
+        "artifactDirectoryName": "serverless/three-drive/dev/1687378637392-2023-06-21T20:17:17.392Z"
       },
       "functions": {
         "$ref": "$[\"service\"][\"functions\"]"
@@ -1330,7 +1583,7 @@
   },
   "package": {
     "individually": true,
-    "artifactDirectoryName": "serverless/three-drive/dev/1687364735454-2023-06-21T16:25:35.454Z",
+    "artifactDirectoryName": "serverless/three-drive/dev/1687378637392-2023-06-21T20:17:17.392Z",
     "artifact": ""
   }
 }

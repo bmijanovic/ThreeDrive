@@ -59,7 +59,7 @@ class User {
       ((X509Certificate cert, String host, int port) => trustSelfSigned);
     IOClient ioClient = IOClient(httpClient);
     var response = await ioClient.post(
-      Uri.parse(url+'login'),
+      Uri.parse(url + 'login'),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
       },

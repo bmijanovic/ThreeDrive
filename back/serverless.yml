@@ -85,6 +85,17 @@ functions:
           method: post
           cors: true
 
+  createDirectory:
+    handler: createDirectory/createDirectory.create
+    package:
+      include:
+        - 'createDirectory/**'
+    events:
+      - http:
+          path: directory
+          method: post
+          cors: true
+
 
 resources:
   Resources:
