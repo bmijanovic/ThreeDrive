@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/io_client.dart';
-import 'package:threecloud/url.dart';
+import 'package:threecloud/urls.dart';
 
 class Resource {
   static Future<String> upload(String name, String image,List<Map<String,String>> tags) async
