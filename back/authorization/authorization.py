@@ -22,7 +22,6 @@ def validate_token(token):
 
 def authorize(event, context):
     token = event.get('authorizationToken').replace("Bearer ", "")
-
     user = validate_token(token)
     if user:
         policy = generate_policy('Allow', event['methodArn'], user['username'])
@@ -49,7 +48,7 @@ def generate_policy(effect, resource, username=None):
     }
 
     if username:
-        policy['Context'] = {
+        policy['context'] = {
             'username': username
         }
 
