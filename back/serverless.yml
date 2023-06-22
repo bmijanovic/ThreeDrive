@@ -42,6 +42,11 @@ provider:
         - "arn:aws:s3:::resources-three-cloud"
         - "arn:aws:s3:::resources-three-cloud/*"
 
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource:
+        - "arn:aws:lambda:eu-central-1:*:function:three-drive-dev-authorizer"
 
 package:
   individually: true
@@ -50,12 +55,17 @@ package:
     - 'utility/**'
     - 'venv/**'
 
-
 functions:
+  authorize:
+    handler: authorization/authorization.authorize
+    package:
+      patterns:
+        - 'authorization/**'
+
   login:
     handler: login/login.login
     package:
-      include:
+      patterns:
         - 'login/**'
     events:
       - http:
@@ -66,7 +76,7 @@ functions:
   registration:
     handler: registration/registration.registration
     package:
-      include:
+      patterns:
         - 'registration/**'
     events:
       - http:
@@ -77,24 +87,33 @@ functions:
   uploadResource:
     handler: uploadResource/uploadResource.upload
     package:
-      include:
+      patterns:
         - 'uploadResource/**'
     events:
       - http:
           path: upload
           method: post
           cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 30
+            type: token
 
   createDirectory:
     handler: createDirectory/createDirectory.create
     package:
-      include:
+      patterns:
         - 'createDirectory/**'
     events:
       - http:
           path: directory
           method: post
           cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 30
+            type: token
+
   getMyResources:
     handler: getMyResources/getMyResources.getMyResources
     package:
@@ -105,6 +124,10 @@ functions:
           path: getMyResources
           method: get
           cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 30
+            type: token
 
 
 resources:

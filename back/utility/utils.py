@@ -1,9 +1,11 @@
 import json
 import os
-
 import boto3
 
 table_name_directory = os.environ['DIRECTORIES_TABLE_NAME']
+table_name_users = os.environ['USERS_TABLE_NAME']
+SECRET_KEY = 'pamuk'
+
 
 
 def create_response(status, body):
@@ -31,6 +33,7 @@ def does_directory_exist(path, name):
     return response['Items']
 
 
+
 def find_directory(path):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name_directory)
@@ -41,6 +44,18 @@ def find_directory(path):
         },
         ExpressionAttributeValues={
             ":paths": path
+        }
+    )
+    return response['Items']
+
+
+def find_user_by_username(username):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name_users)
+    response = table.scan(
+        FilterExpression="username = :username",
+        ExpressionAttributeValues={
+            ":username": username
         }
     )
     return response['Items']

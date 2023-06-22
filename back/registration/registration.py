@@ -9,7 +9,7 @@ import re
 from hashlib import sha256
 from dateutil.parser import parse
 
-from utility.utils import create_response
+from utility.utils import create_response, find_user_by_username
 
 table_name = os.environ['USERS_TABLE_NAME']
 table_name_dir = os.environ['DIRECTORIES_TABLE_NAME']
@@ -95,19 +95,6 @@ def does_user_exist(username, email):
     if find_user_by_username(username):
         return True
     return False
-
-
-def find_user_by_username(username):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    response = table.scan(
-        FilterExpression="username = :username",
-        ExpressionAttributeValues={
-            ":username": username
-        }
-    )
-    return response['Items']
-
 
 def find_user_by_email(email):
     dynamodb = boto3.resource('dynamodb')
