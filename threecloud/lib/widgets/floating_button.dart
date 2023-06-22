@@ -79,10 +79,6 @@ class FloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        floatingActionButton: buildSpeedDial(context),
-      ),
-    );
+    return buildSpeedDial(context);
   }
 }

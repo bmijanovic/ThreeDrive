@@ -3,7 +3,7 @@ import os
 
 import boto3
 
-from utility.utils import create_response
+from utility.utils import create_response, does_directory_exist
 
 table_name = os.environ['DIRECTORIES_TABLE_NAME']
 
@@ -22,7 +22,7 @@ def create(event, context):
     try:
         create_directory(path, name)
         body = {
-            'data': json.dumps('Directory creation successfull')
+            'data': json.dumps('Directory creation successfully')
         }
         return create_response(200, body)
     except ValueError as err:
@@ -48,19 +48,7 @@ def create_directory(path, name):
 
 
 
-def does_directory_exist(path, name):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    response = table.scan(
-        FilterExpression="#p = :paths",
-        ExpressionAttributeNames={
-            "#p": "path"
-        },
-        ExpressionAttributeValues={
-            ":paths": path + name
-        }
-    )
-    return response['Items']
+
 
 
 def insert_directory_in_dynamo(new_directory):

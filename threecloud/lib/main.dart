@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
         ),
         tabBarTheme: myTabBarTheme,
       ),
-      home: loggedIn == true ? HomeScreen() : LoginScreen(),
+      home: loggedIn == true ? HomeScreen(currentPath: 'vukasinb7',) : LoginScreen(),
     );
   }
 }

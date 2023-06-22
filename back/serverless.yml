@@ -95,6 +95,16 @@ functions:
           path: directory
           method: post
           cors: true
+  getMyResources:
+    handler: getMyResources/getMyResources.getMyResources
+    package:
+      include:
+        - 'getMyResources/**'
+    events:
+      - http:
+          path: getMyResources
+          method: get
+          cors: true
 
 
 resources:
