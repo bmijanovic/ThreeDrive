@@ -516,3 +516,4 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/serverless,node
 back/venv/**
+back/.idea/

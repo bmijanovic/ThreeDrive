@@ -1,12 +1,9 @@
 import json
-import os
-
-import boto3
-import hashlib
 from hashlib import sha256
-from utility.utils import create_response
 
-table_name = os.environ['USERS_TABLE_NAME']
+import jwt
+
+from utility.utils import create_response, find_user_by_username, SECRET_KEY
 
 
 def login(event, context):
@@ -19,40 +16,26 @@ def login(event, context):
             user = results[0]
             password = sha256(password.encode('utf-8')).hexdigest()
             if user['username'] == username and user['password'] == password:
+                token = generate_token(username)
                 body = {
-                    'data': json.dumps('Logged in successfully')
+                    'message': json.dumps('Logged in successfully'),
+                    'token': token
                 }
                 return create_response(200, body)
-                # return {
-                #     'statusCode': 200,
-                #     'body': json.dumps('Logged in successfully!')
-                # }
         body = {
             'data': json.dumps('Invalid username or password')
         }
         return create_response(404, body)
-        # return {
-        #     'statusCode': 404,
-        #     'body': json.dumps('Invalid username or password')
-        # }
     except (KeyError, json.decoder.JSONDecodeError):
         body = {
             'data': json.dumps('Invalid request body')
         }
         return create_response(400, body)
-        # return {
-        #     'statusCode': 400,
-        #     'body': json.dumps('Invalid request body')
-        # }
 
 
-def find_user_by_username(username):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    response = table.scan(
-        FilterExpression="username = :username",
-        ExpressionAttributeValues={
-            ":username": username
-        }
-    )
-    return response['Items']
+def generate_token(username):
+    payload = {
+        'username': username,
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+    return token
