@@ -54,20 +54,13 @@ def create_directory(path, name):
     if len(path.split("/")) < 2:
         return
 
-    parent_directory = find_directory(path[:-1])
+    parent_directory = find_directory(path[:-1])[0]
 
-    # list = parent_directory['directories']
-    # list += new_directory['path']
-    # print(list)
-    new_directory_item = {'S': path + name}
-    if 'directories' in parent_directory and 'L' in parent_directory['directories']:
-        parent_directory['directories']['L'].append(new_directory_item)
-    else:
-        parent_directory['directories'] = {'L': [new_directory_item]}
+    parent_directory['directories'] += [new_directory['path']]
     parent_directory['time_updated'] = str(time)
 
-    # update_parent(parent_directory["path"], parent_directory['directories'])
     insert_directory_in_dynamo(parent_directory)
+
 
 def update_parent(id, list):
     dynamodb = boto3.resource('dynamodb')
