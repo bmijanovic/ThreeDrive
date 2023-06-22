@@ -7,8 +7,8 @@ def validate_token(token):
     try:
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         username = decoded_token.get('username')
-        if username in find_user_by_username(username):
-            return find_user_by_username(username)[0]
+        return find_user_by_username(username)[0]  # needs to be secured
+
     except jwt.InvalidSignatureError:
         print("InvalidSignatureError")
         return None
@@ -18,7 +18,6 @@ def validate_token(token):
     except jwt.DecodeError:
         print("DecodeError")
         return None
-    return None
 
 
 def authorize(event, context):
@@ -30,14 +29,13 @@ def authorize(event, context):
     else:
         policy = generate_policy('Deny', event['methodArn'])
 
-    return {
-        'principalId': 'user',
-        'policyDocument': policy
-    }
+    print(policy)
+    return policy
 
 
 def generate_policy(effect, resource, username=None):
     policy = {
+        'principalId': 'user',
         'policyDocument': {
             'Version': '2012-10-17',
             'Statement': [
@@ -51,7 +49,7 @@ def generate_policy(effect, resource, username=None):
     }
 
     if username:
-        policy['Statement'][0]['Context'] = {
+        policy['Context'] = {
             'username': username
         }
 

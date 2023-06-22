@@ -17,7 +17,6 @@ def login(event, context):
             password = sha256(password.encode('utf-8')).hexdigest()
             if user['username'] == username and user['password'] == password:
                 token = generate_token(username)
-
                 body = {
                     'message': json.dumps('Logged in successfully'),
                     'token': token
