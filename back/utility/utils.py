@@ -7,6 +7,7 @@ table_name_users = os.environ['USERS_TABLE_NAME']
 SECRET_KEY = 'pamuk'
 
 
+
 def create_response(status, body):
     return {
         'statusCode': status,
@@ -27,6 +28,22 @@ def does_directory_exist(path, name):
         },
         ExpressionAttributeValues={
             ":paths": path + name
+        }
+    )
+    return response['Items']
+
+
+
+def find_directory(path):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name_directory)
+    response = table.scan(
+        FilterExpression="#p = :paths",
+        ExpressionAttributeNames={
+            "#p": "path"
+        },
+        ExpressionAttributeValues={
+            ":paths": path
         }
     )
     return response['Items']

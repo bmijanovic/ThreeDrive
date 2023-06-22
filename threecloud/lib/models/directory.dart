@@ -20,7 +20,7 @@ class Directory {
       body: json.encode(
         {
           'name': name,
-          'path': path,
+          'path': path + '/',
         },
       ),
     );
