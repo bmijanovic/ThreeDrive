@@ -52,10 +52,16 @@ package:
 
 
 functions:
+  authorizer:
+    handler: authorization/authorization.authorize
+    package:
+      patterns:
+        - 'authorization/**'
+
   login:
     handler: login/login.login
     package:
-      include:
+      patterns:
         - 'login/**'
     events:
       - http:
@@ -66,7 +72,7 @@ functions:
   registration:
     handler: registration/registration.registration
     package:
-      include:
+      patterns:
         - 'registration/**'
     events:
       - http:
@@ -77,18 +83,22 @@ functions:
   uploadResource:
     handler: uploadResource/uploadResource.upload
     package:
-      include:
+      patterns:
         - 'uploadResource/**'
     events:
       - http:
           path: upload
           method: post
           cors: true
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 30
+            type: token
 
   createDirectory:
     handler: createDirectory/createDirectory.create
     package:
-      include:
+      patterns:
         - 'createDirectory/**'
     events:
       - http:
