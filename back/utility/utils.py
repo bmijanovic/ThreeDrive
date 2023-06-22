@@ -5,6 +5,7 @@ import boto3
 
 table_name_directory = os.environ['DIRECTORIES_TABLE_NAME']
 
+
 def create_response(status, body):
     return {
         'statusCode': status,
@@ -13,6 +14,7 @@ def create_response(status, body):
         },
         'body': json.dumps(body, default=str)
     }
+
 
 def does_directory_exist(path, name):
     dynamodb = boto3.resource('dynamodb')
@@ -24,6 +26,21 @@ def does_directory_exist(path, name):
         },
         ExpressionAttributeValues={
             ":paths": path + name
+        }
+    )
+    return response['Items']
+
+
+def find_directory(path):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name_directory)
+    response = table.scan(
+        FilterExpression="#p = :paths",
+        ExpressionAttributeNames={
+            "#p": "path"
+        },
+        ExpressionAttributeValues={
+            ":paths": path
         }
     )
     return response['Items']
