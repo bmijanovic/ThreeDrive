@@ -10,7 +10,7 @@ import sys
 import datetime
 import math
 
-from utility.utils import create_response, does_directory_exist
+from utility.utils import create_response, find_directory_by_path_and_name
 
 table_name = os.environ['RESOURCES_TABLE_NAME']
 bucket_name = os.environ['RESOURCES_BUCKET_NAME']
@@ -21,7 +21,7 @@ def getMyResources(event, context):
     directory=None
     if "/" in path_param:
         path,name=path_param.rsplit("/", 1)
-        directory=does_directory_exist(path+"/",name)
+        directory=find_directory_by_path_and_name(path + "/", name)
         if directory is None:
             body = {
                 'data': json.dumps('Invalid request body')
@@ -35,7 +35,7 @@ def getMyResources(event, context):
     else:
         path=""
         name=path_param
-        directory = does_directory_exist(path, name)
+        directory = find_directory_by_path_and_name(path, name)
         if directory is None:
             body = {
                 'data': json.dumps('Invalid request body')

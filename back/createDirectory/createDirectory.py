@@ -4,7 +4,7 @@ import os
 
 import boto3
 
-from utility.utils import create_response, does_directory_exist, find_directory, insert_directory_in_dynamo
+from utility.utils import create_response, find_directory_by_path_and_name, find_directory_by_path, insert_directory_in_dynamo
 
 table_name = os.environ['DIRECTORIES_TABLE_NAME']
 
@@ -34,7 +34,7 @@ def create(event, context):
 
 
 def create_directory(path, name):
-    if does_directory_exist(path, name):
+    if find_directory_by_path_and_name(path, name):
         raise ValueError("Directory already exist!")
 
     time = datetime.datetime.now().time()
@@ -54,7 +54,7 @@ def create_directory(path, name):
     if len(path.split("/")) < 2:
         return
 
-    parent_directory = find_directory(path[:-1])[0]
+    parent_directory = find_directory_by_path(path[:-1])[0]
 
     parent_directory['directories'] += [new_directory['path']]
     parent_directory['time_updated'] = str(time)

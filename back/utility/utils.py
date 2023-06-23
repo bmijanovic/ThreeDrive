@@ -4,6 +4,7 @@ import boto3
 
 table_name_directory = os.environ['DIRECTORIES_TABLE_NAME']
 table_name_users = os.environ['USERS_TABLE_NAME']
+table_name_resources = os.environ['RESOURCES_TABLE_NAME']
 SECRET_KEY = 'pamuk'
 
 
@@ -18,7 +19,7 @@ def create_response(status, body):
     }
 
 
-def does_directory_exist(path, name):
+def find_directory_by_path_and_name(path, name):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name_directory)
     response = table.scan(
@@ -34,7 +35,7 @@ def does_directory_exist(path, name):
 
 
 
-def find_directory(path):
+def find_directory_by_path(path):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name_directory)
     response = table.scan(
@@ -60,18 +61,23 @@ def find_user_by_username(username):
     )
     return response['Items']
 
-def find_directory_by_path(email):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name_directory)
-    response = table.scan(
-        FilterExpression="email = :email",
-        ExpressionAttributeValues={
-            ":email": email
-        }
-    )
-    return response['Items']
 
 def insert_directory_in_dynamo(new_directory):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name_directory)
     table.put_item(Item=new_directory)
+
+
+def find_file_by_path(path):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name_resources)
+    response = table.scan(
+        FilterExpression="#p = :paths",
+        ExpressionAttributeNames={
+            "#p": "path"
+        },
+        ExpressionAttributeValues={
+            ":paths": path
+        }
+    )
+    return response['Items']

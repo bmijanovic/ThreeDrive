@@ -10,7 +10,7 @@ import sys
 import datetime
 import math
 
-from utility.utils import create_response, find_directory, insert_directory_in_dynamo
+from utility.utils import create_response, find_directory_by_path, insert_directory_in_dynamo
 
 table_name = os.environ['RESOURCES_TABLE_NAME']
 bucket_name = os.environ['RESOURCES_BUCKET_NAME']
@@ -60,7 +60,7 @@ def upload(event, context):
 
 
 
-    parent_directory = find_directory(path)[0]
+    parent_directory = find_directory_by_path(path)[0]
     if 'items' in parent_directory:
         parent_directory['items'] += [fileKey]
     else:
