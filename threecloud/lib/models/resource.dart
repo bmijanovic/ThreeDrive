@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:threecloud/urls.dart';
 
 class Resource {
-  static Future<String> upload(String name, String image,List<Map<String,String>> tags) async
+  static Future<String> upload(String name, String image,List<Map<String,String>> tags,String current_path) async
   {
     bool trustSelfSigned = true;
     HttpClient httpClient = HttpClient()
@@ -25,6 +25,7 @@ class Resource {
           'name': name,
           'image': image,
           'tags':tags,
+          'path':current_path.substring(0,current_path.length-1)
         },
       ),
     );
@@ -54,12 +55,14 @@ class Resource {
     var res = jsonDecode(response.body);
     if (response.statusCode == 200) {
       List<dynamic> directories=[];
-      if (res['data'][0]['directories'] !=null){
-        directories.addAll(res['data'][0]['directories']);
-      }
-      List<dynamic> resources=[];
-      if (res['data'][0]['items'] !=null){
-        directories.addAll(res['data'][0]['items']);
+      List<dynamic> resources = [];
+      if (res['data'].length>0) {
+        if (res['data'][0]['directories'] != null) {
+          directories.addAll(res['data'][0]['directories']);
+        }
+        if (res['data'][0]['items'] != null) {
+          resources.addAll(res['data'][0]['items']);
+        }
       }
       DirectoryDTO returnValue= DirectoryDTO((directories)?.map((item) => item as String)?.toList(),(resources)?.map((item) => item as String)?.toList());
       return returnValue ;

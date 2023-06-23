@@ -10,17 +10,19 @@ import '../models/resource.dart';
 import '../widgets/big_text_field.dart';
 class UploadFileScreen extends StatefulWidget{
   final File file;
-  UploadFileScreen({Key? key, required this.file}) : super(key: key);
+  final String current_path;
+  UploadFileScreen({Key? key, required this.file, required String this.current_path}) : super(key: key);
   @override
-  State<StatefulWidget> createState() =>UploadFileScreenState(file);
+  State<StatefulWidget> createState() =>UploadFileScreenState(file,this.current_path);
 }
 
-class UploadFileScreenState extends State<UploadFileScreen> {
+class UploadFileScreenState extends State<UploadFileScreen>{
   final List<Widget> _cardList = [];
   final List<String> _keyList = [];
   final List<String> _valueList = [];
   final File file;
-  UploadFileScreenState(this.file);
+  String current_path;
+  UploadFileScreenState(this.file,this.current_path);
   List<String> reservedWords=["extension","mime","name","id","owner","share","size","timeModified","timeUploaded","resource_id"];
   DateTime selectedDate = DateTime.now();
   final TextEditingController nameController = TextEditingController();
@@ -245,7 +247,7 @@ class UploadFileScreenState extends State<UploadFileScreen> {
     for (int i=0;i<_keyList.length;i++){
       tags.add({"key":_keyList[i],"value":_valueList[i]});
     }
-    await Resource.upload(nameController.text,base64File,tags);
+    await Resource.upload(nameController.text,base64File,tags,current_path);
     Navigator.pop(context);
     Fluttertoast.showToast(
         msg: "File Uploaded Successfully!",

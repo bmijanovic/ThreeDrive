@@ -59,3 +59,19 @@ def find_user_by_username(username):
         }
     )
     return response['Items']
+
+def find_directory_by_path(email):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name_directory)
+    response = table.scan(
+        FilterExpression="email = :email",
+        ExpressionAttributeValues={
+            ":email": email
+        }
+    )
+    return response['Items']
+
+def insert_directory_in_dynamo(new_directory):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name_directory)
+    table.put_item(Item=new_directory)

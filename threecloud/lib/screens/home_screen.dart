@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_icon/file_icon.dart';
+import 'package:flutter/services.dart';
 import '../models/resource.dart';
 import '../widgets/floating_button.dart';
 
@@ -12,17 +14,22 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState(currentPath);
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>{
   Future<dynamic>? elements;
+  var lifecycleEventHandler;
   String currentPath;
   _HomeScreenState(this.currentPath){
     elements=Resource.getMyResources(currentPath);
-     getResources();
+    getResources();
   }
 
   getResources() async{
     elements = Resource.getMyResources(currentPath) ;
+    setState(() {
+    });
   }
+
+
   @override
   Widget build(BuildContext context) {
     var data=[1,2,3,4];
@@ -42,13 +49,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     // horizontal, this produces 2 rows.
                     crossAxisCount: 2,
                     // Generate 100 widgets that display their index in the List.
+                    padding: const EdgeInsets.all(8.0),
                     children:  [
                             if (snapshot.hasData)
                               for (var i in (snapshot.data!).directories)GestureDetector(
                                   onTap: (){Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (context) => HomeScreen(currentPath: i,)),
-                                  );},
+                                  );
+                                  },
                                   onLongPress: ()=> showDialog<String>(
                                     context: context,
                                     builder: (BuildContext context) => Dialog(
@@ -98,13 +107,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Text("${i}",style: TextStyle(color: Colors.black,fontSize: 18,fontWeight: FontWeight.w600,))]
                                   )                               )
                     ,if (snapshot.hasData)
-                      for (var i in (snapshot.data!).files)Column(
-                          children:[ Expanded(child: FileIcon(i)),
+                      for (var i in (snapshot.data!).files)
+                            GestureDetector(
+                            onTap: (){Navigator.push(context,MaterialPageRoute(builder: (context) => HomeScreen(currentPath: i,)),);},
+                            onLongPress: ()=> showDialog<String>(context: context,builder: (BuildContext context) => Dialog(
+                                child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  const Text('Actions'),
+                                  const SizedBox(height: 15),
+                                  TextButton(onPressed: () {Navigator.pop(context);},
+                                    child: const Text('Edit'),),
+                                  TextButton(onPressed: () {Navigator.pop(context);},
+                                    child: const Text('Delete'),),
+                                  TextButton(onPressed: () {Navigator.pop(context);},
+                                    child: const Text('Close'),),
+                                  ],
+                                  ),
+                                  ),
+                                  )),
+                            child:
+                        Column(
+                          children:[ Expanded(child: FileIcon(i,size: 70,)),
                             const SizedBox(height: 10),
                             Text("${i}",style: TextStyle(color: Colors.black,fontSize: 18,fontWeight: FontWeight.w600,))])
-                    ]
+                            )]
                   ),
-                  floatingActionButton:FloatingButton(currentPath: currentPath+"/",),
+                  floatingActionButton:FloatingButton(currentPath: currentPath+"/",homeScreen:getResources),
 
                 )
             );

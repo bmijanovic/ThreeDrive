@@ -10,7 +10,7 @@ import sys
 import datetime
 import math
 
-from utility.utils import create_response
+from utility.utils import create_response, find_directory, insert_directory_in_dynamo
 
 table_name = os.environ['RESOURCES_TABLE_NAME']
 bucket_name = os.environ['RESOURCES_BUCKET_NAME']
@@ -23,6 +23,7 @@ def upload(event, context):
         fileBytesStr = body['image']
         fileName = body['name']
         tags = body["tags"]
+        path = body['path']
         plainName = fileName
     except (KeyError, json.decoder.JSONDecodeError):
         body = {
@@ -35,19 +36,19 @@ def upload(event, context):
     size = sys.getsizeof(fileBytes)
     ext = filetype.guess_extension(fileBytes)
     type = filetype.guess_mime(fileBytes)
-    fileKey = str(uuid.uuid4())
+    fileKey = path+"/"+fileName
     if ext is not None:
         fileName += "." + ext
         fileKey += "." + ext
 
     resource_item = {
-        'id': str(uuid.uuid4()),
+        'path': fileKey,
         'name': plainName,
         'extension': str(ext),
         'mime': type,
         'resource_id': fileKey,
         'size': size,
-        'owner': "TODO",
+        'owner': event['requestContext']['authorizer']['username'],
         'timeUploaded': str(datetime.datetime.now()),
         'timeModified': str(datetime.datetime.now()),
         'share': []
@@ -56,7 +57,17 @@ def upload(event, context):
         resource_item[tag['key']] = tag['value']
     insert_resource_in_s3(fileKey, fileBytes)
     insert_resource_in_dynamo(resource_item)
-    print("AAA")
+
+
+
+    parent_directory = find_directory(path)[0]
+    if 'items' in parent_directory:
+        parent_directory['items'] += [fileKey]
+    else:
+        parent_directory['items']=[fileKey]
+    parent_directory['time_updated'] = str(datetime.datetime.now().time())
+
+    insert_directory_in_dynamo(parent_directory)
 
     body = {
         'data': "File Uploaded"
@@ -73,6 +84,14 @@ def insert_resource_in_dynamo(resource_item):
     table = dynamodb.Table(table_name)
     table.put_item(Item=resource_item)
 
+def update_parent(id, list):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name)
+    table.update_item(
+        Key={'id': id},
+        UpdateExpression='SET items = :val',
+        ExpressionAttributeValues={':val': list}
+    )
 
 def insert_resource_in_s3(fileKey, fileBytes):
     s3 = boto3.client('s3')
