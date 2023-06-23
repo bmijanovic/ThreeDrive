@@ -7,7 +7,7 @@ def validate_token(token):
     try:
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
         username = decoded_token.get('username')
-        return find_user_by_username(username)[0]  # needs to be secured
+        return find_user_by_username(username)[0]  #TODO needs to be secured
 
     except jwt.InvalidSignatureError:
         print("InvalidSignatureError")
@@ -28,7 +28,6 @@ def authorize(event, context):
     else:
         policy = generate_policy('Deny', event['methodArn'])
 
-    print(policy)
     return policy
 
 

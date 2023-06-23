@@ -1,14 +1,10 @@
 import json
 import base64
 import os
-import uuid
 import boto3
 import filetype
-import mimetypes
-from io import BytesIO
 import sys
 import datetime
-import math
 
 from utility.utils import create_response, find_directory_by_path, insert_directory_in_dynamo
 
@@ -83,15 +79,6 @@ def insert_resource_in_dynamo(resource_item):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
     table.put_item(Item=resource_item)
-
-def update_parent(id, list):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    table.update_item(
-        Key={'id': id},
-        UpdateExpression='SET items = :val',
-        ExpressionAttributeValues={':val': list}
-    )
 
 def insert_resource_in_s3(fileKey, fileBytes):
     s3 = boto3.client('s3')

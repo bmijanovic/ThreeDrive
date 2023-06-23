@@ -90,8 +90,23 @@ functions:
         - 'uploadResource/**'
     events:
       - http:
-          path: upload
+          path: resource
           method: post
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  deleteResource:
+    handler: deleteResource/deleteResource.delete
+    package:
+      patterns:
+        - 'deleteResource/**'
+    events:
+      - http:
+          path: resource
+          method: delete
           cors: true
           authorizer:
             name: authorize

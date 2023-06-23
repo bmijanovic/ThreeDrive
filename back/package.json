@@ -300,7 +300,7 @@
     "seek-bzip": "^1.0.6",
     "semver": "^7.5.2",
     "serverless": "^3.32.2",
-    "serverless-python-requirements": "^5.2.0",
+    "serverless-python-requirements": "^5.4.0",
     "set-blocking": "^2.0.0",
     "set-value": "^4.1.0",
     "setimmediate": "^1.0.5",
