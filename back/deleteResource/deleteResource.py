@@ -11,19 +11,22 @@ resources_bucket_name = os.environ['RESOURCES_BUCKET_NAME']
 def delete(event, context):
     try:
         path = event["queryStringParameters"]["path"]
-        resource = find_file_by_path(path)[0] #TODO needs to be secured
+
+        resource = find_file_by_path(path)
+        if resource is None:
+            return create_response(400, {'data': json.dumps('Invalid request body')})
+        resource = resource[0]
+        if resource['owner'] != event['requestContext']['authorizer']['username']:
+            return create_response(400, {'data': json.dumps('Invalid request body')})
 
         head = os.path.split(path)[0]
-        directory = find_directory_by_path(head)[0] #TODO needs to be secured
+        directory = find_directory_by_path(head)
+        if directory is None:
+            return create_response(400, {'data': json.dumps('Invalid request body')})
+        directory = directory[0]
+
         items = directory['items']
         items.remove(path)
-
-        if resource['owner'] != event['requestContext']['authorizer']['username']:
-            body = {
-                'data': json.dumps('Invalid request body')
-            }
-            return create_response(400, body)
-
         update_parent_directory_items(head, items)
         delete_resource_from_dynamo(resource['path'])
         delete_resource_from_s3(resource['path'])
