@@ -95,7 +95,7 @@ functions:
           cors: true
           authorizer:
             name: authorize
-            resultTtlInSeconds: 30
+            resultTtlInSeconds: 0
             type: token
 
   createDirectory:
@@ -110,7 +110,7 @@ functions:
           cors: true
           authorizer:
             name: authorize
-            resultTtlInSeconds: 30
+            resultTtlInSeconds: 0
             type: token
 
   getMyResources:
@@ -125,7 +125,7 @@ functions:
           cors: true
           authorizer:
             name: authorize
-            resultTtlInSeconds: 30
+            resultTtlInSeconds: 0
             type: token
 
 

@@ -13,8 +13,9 @@ import '../screens/folder_creating_popup.dart';
 
 class FloatingButton extends StatelessWidget {
   final String currentPath;
+  var homeScreen;
 
-  const FloatingButton({super.key, required String this.currentPath});
+   FloatingButton({super.key, required String this.currentPath, required var this.homeScreen});
 
 
   SpeedDial buildSpeedDial(BuildContext context) {
@@ -56,11 +57,11 @@ class FloatingButton extends StatelessWidget {
       final File fileForUpload = File(file.path!);
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => UploadFileScreen(file: fileForUpload,)),
-      );
+        MaterialPageRoute(builder: (context) => UploadFileScreen(file: fileForUpload,current_path:currentPath)),
+      ).then((value) =>
+        homeScreen());
 
     } else {
-      // User canceled the picker
     }
   }
 

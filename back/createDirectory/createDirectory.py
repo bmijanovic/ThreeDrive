@@ -4,7 +4,7 @@ import os
 
 import boto3
 
-from utility.utils import create_response, does_directory_exist, find_directory
+from utility.utils import create_response, does_directory_exist, find_directory, insert_directory_in_dynamo
 
 table_name = os.environ['DIRECTORIES_TABLE_NAME']
 
@@ -72,19 +72,7 @@ def update_parent(id, list):
     )
 
 
-def insert_directory_in_dynamo(new_directory):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    table.put_item(Item=new_directory)
 
 
-def find_directory_by_path(email):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    response = table.scan(
-        FilterExpression="email = :email",
-        ExpressionAttributeValues={
-            ":email": email
-        }
-    )
-    return response['Items']
+
+
