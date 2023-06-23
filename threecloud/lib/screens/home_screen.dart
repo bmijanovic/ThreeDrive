@@ -19,7 +19,6 @@ class _HomeScreenState extends State<HomeScreen>{
   var lifecycleEventHandler;
   String currentPath;
   _HomeScreenState(this.currentPath){
-    elements=Resource.getMyResources(currentPath);
     getResources();
   }
 
@@ -121,7 +120,12 @@ class _HomeScreenState extends State<HomeScreen>{
                                   const SizedBox(height: 15),
                                   TextButton(onPressed: () {Navigator.pop(context);},
                                     child: const Text('Edit'),),
-                                  TextButton(onPressed: () {Navigator.pop(context);},
+                                  TextButton(onPressed: ()
+                                  {
+                                    Resource.delete(i, currentPath).whenComplete(() =>
+                                        getResources());
+                                    Navigator.pop(context);
+                                  },
                                     child: const Text('Delete'),),
                                   TextButton(onPressed: () {Navigator.pop(context);},
                                     child: const Text('Close'),),
