@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/io_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:threecloud/urls.dart';
 
 class Resource {
@@ -17,6 +18,7 @@ class Resource {
       Uri.parse(url + "upload"),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
       },
       body: json.encode(
         {
@@ -43,9 +45,10 @@ class Resource {
     IOClient ioClient = IOClient(httpClient);
     var response = await ioClient.get(
       Uri.parse(
-          url+"getMyResources"+"?path="+name),
+          "${url}getMyResources?path=$name"),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
       },
     );
     var res = jsonDecode(response.body);
@@ -58,8 +61,8 @@ class Resource {
       if (res['data'][0]['items'] !=null){
         directories.addAll(res['data'][0]['items']);
       }
-      DirectoryDTO return_value= DirectoryDTO((directories)?.map((item) => item as String)?.toList(),(resources)?.map((item) => item as String)?.toList());
-      return return_value ;
+      DirectoryDTO returnValue= DirectoryDTO((directories)?.map((item) => item as String)?.toList(),(resources)?.map((item) => item as String)?.toList());
+      return returnValue ;
     } else {
       throw StateError(res['body']);
     }

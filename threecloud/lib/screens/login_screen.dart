@@ -77,7 +77,7 @@ class LoginScreen extends StatelessWidget {
     if (!areInputsValid(context)) return;
     try
     {
-      String id = await User.logIn(usernameController.text, passwordController.text);
+      await User.logIn(usernameController.text, passwordController.text);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen(currentPath: 'vukasinb7',)),
@@ -91,19 +91,11 @@ class LoginScreen extends StatelessWidget {
           textColor: Colors.white,
           fontSize: 16.0
       );
-      await rememberThatUserLoggedIn(id);
     } on StateError catch (error)
     {
       showError(context, error.message);
     }
   }
-
-  rememberThatUserLoggedIn(String id) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("loggedIn", true);
-    await prefs.setString("userId", id);
-  }
-
   bool areInputsValid(BuildContext context) {
     if (passwordController.text == "" ||
         passwordController.text == "") {

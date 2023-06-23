@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/io_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:threecloud/urls.dart';
 
 class Directory {
@@ -16,6 +17,7 @@ class Directory {
       Uri.parse(url + "directory"),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: "Bearer ${(await SharedPreferences.getInstance()).getString("token")}"
       },
       body: json.encode(
         {

@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/io_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:threecloud/urls.dart';
 
 
@@ -24,7 +25,7 @@ class User {
       ((X509Certificate cert, String host, int port) => trustSelfSigned);
     IOClient ioClient = IOClient(httpClient);
     var response = await ioClient.post(
-      Uri.parse(url+'registration'),
+      Uri.parse('${url}registration'),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
       },
@@ -51,7 +52,7 @@ class User {
     }
   }
 
-  static Future<String> logIn(String username, String password) async
+  static Future<void> logIn(String username, String password) async
   {
     bool trustSelfSigned = true;
     HttpClient httpClient = HttpClient()
@@ -59,7 +60,7 @@ class User {
       ((X509Certificate cert, String host, int port) => trustSelfSigned);
     IOClient ioClient = IOClient(httpClient);
     var response = await ioClient.post(
-      Uri.parse(url + 'login'),
+      Uri.parse('${url}login'),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
       },
@@ -72,9 +73,18 @@ class User {
     );
     var res = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      return "1";
+      var data = jsonDecode(response.body);
+      await rememberThatUserLoggedIn(username, data['token']);
     } else {
       throw StateError(res['body']);
     }
   }
+
+  static rememberThatUserLoggedIn(String username, String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("loggedIn", true);
+    await prefs.setString("username", username);
+    await prefs.setString("token", token);
+  }
+
 }
