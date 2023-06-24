@@ -92,6 +92,29 @@ class Resource {
       throw StateError(res['body']);
     }
   }
+
+  static Future<dynamic> getResource(String path) async
+  {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.get(
+      Uri.parse(
+          "${url}resource?path=$path"),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
+      },
+    );
+    var res = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return res['data'][0];
+    } else {
+      throw StateError(res['body']);
+    }
+  }
 }
 class DirectoryDTO{
   late List<String> directories;

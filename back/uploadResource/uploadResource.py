@@ -6,13 +6,14 @@ import filetype
 import sys
 import datetime
 
-from utility.utils import create_response, find_directory_by_path, insert_directory_in_dynamo
+from utility.utils import create_response, find_directory_by_path, insert_directory_in_dynamo, find_file_by_path
 
 table_name = os.environ['RESOURCES_TABLE_NAME']
 bucket_name = os.environ['RESOURCES_BUCKET_NAME']
 
 
 def upload(event, context):
+
     try:
         db = boto3.client('dynamodb')
         body = json.loads(event['body'])
@@ -36,6 +37,12 @@ def upload(event, context):
     if ext is not None:
         fileName += "." + ext
         fileKey += "." + ext
+
+    if find_file_by_path(fileKey):
+        body = {
+            'data': json.dumps('File Already Exist')
+        }
+        return create_response(400, body)
 
     resource_item = {
         'path': fileKey,
