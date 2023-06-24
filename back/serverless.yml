@@ -218,6 +218,20 @@ functions:
               resultTtlInSeconds: 0
               type: token
 
+  contentSharingList:
+    handler: getContentShareList/getContentShareList.get_list
+    package:
+      include:
+        - 'getContentShareList/**'
+    events:
+      - http:
+          path: share
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
 
 
 resources:
