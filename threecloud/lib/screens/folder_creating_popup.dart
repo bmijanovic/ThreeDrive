@@ -56,6 +56,7 @@ class _FolderNamePopupState extends State<FolderNamePopup> {
 
     // Close the popup
     Navigator.of(context).pop();
+
   }
 
   @override

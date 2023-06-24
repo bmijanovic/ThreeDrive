@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_icon/file_icon.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import '../models/directory.dart';
 import '../models/resource.dart';
 import '../widgets/floating_button.dart';
 
@@ -71,11 +73,13 @@ class _HomeScreenState extends State<HomeScreen>{
                                               TextButton(
                                                 onPressed: () {
                                                   Navigator.pop(context);
+                                                  print(i);
                                                 },
                                                 child: const Text('Edit'),
                                               ),
                                               TextButton(
                                                 onPressed: () {
+                                                  deleteFile(i);
                                                   Navigator.pop(context);
                                                 },
                                                 child: const Text('Delete'),
@@ -103,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen>{
                                         size: 70,
                                       )),
                                         const SizedBox(height: 10),
-                                        Text("${i}",style: TextStyle(color: Colors.black,fontSize: 18,fontWeight: FontWeight.w600,))]
+                                        Text("${i.toString().split("/").last}",style: TextStyle(color: Colors.black,fontSize: 18,fontWeight: FontWeight.w600,))]
                                   )                               )
                     ,if (snapshot.hasData)
                       for (var i in (snapshot.data!).files)
@@ -149,6 +153,37 @@ class _HomeScreenState extends State<HomeScreen>{
       },
     );
 
+
+  }
+
+  Future<void> deleteFile(String s)
+  async {
+    try
+    {
+      await Directory.delete(s);
+      Fluttertoast.showToast(
+        msg: 'Directory created deleted',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.grey,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
+    catch(e)
+    {
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.grey,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+
+    }
 
   }
 }

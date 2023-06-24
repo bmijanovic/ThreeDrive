@@ -3,7 +3,7 @@ import os
 
 
 from utility.utils import create_response, find_directory_by_path, \
-    delete_directory_from_dynamo, delete_resource_from_s3, delete_resource_from_dynamo
+    delete_directory_from_dynamo, delete_resource_from_s3, delete_resource_from_dynamo, insert_directory_in_dynamo
 
 table_name = os.environ['DIRECTORIES_TABLE_NAME']
 s3_name = os.environ['RESOURCES_BUCKET_NAME']
@@ -20,6 +20,7 @@ def delete(event, context):
         return create_response(400, body)
 
     try:
+        delete_from_parent(path)
         delete_directory(path)
         body = {
             'data': json.dumps('Directory deleted successfully')
@@ -31,6 +32,10 @@ def delete(event, context):
         }
         return create_response(400, body)
 
+def delete_from_parent(path):
+    directory = find_directory_by_path('/'.join(path.split('/')[:-1]))[0]
+    directory['directories'].remove(path)
+    insert_directory_in_dynamo(directory)
 
 def delete_directory(path):
     directory = find_directory_by_path(path)[0]
@@ -43,6 +48,7 @@ def delete_directory(path):
     paths = []
     for i, directory in enumerate(directory['directories']):
         paths.append(directory)
+
 
     print(path)
     delete_directory_from_dynamo(path)
