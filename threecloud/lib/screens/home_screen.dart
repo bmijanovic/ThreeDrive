@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen>{
                                                   Navigator.pop(context);
                                                   Navigator.push(
                                                     context,
-                                                    MaterialPageRoute(builder: (context) => ContentSharingScreen(action: "DIRECTORY",)),
+                                                    MaterialPageRoute(builder: (context) => ContentSharingScreen(action: "DIRECTORY", path: i,)),
                                                   ).then((value) =>
                                                   this);
                                                 },
@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen>{
                                         Navigator.pop(context);
                                         Navigator.push(
                                           context,
-                                          MaterialPageRoute(builder: (context) => ContentSharingScreen(action: "RESOURCE",)),
+                                          MaterialPageRoute(builder: (context) => ContentSharingScreen(action: "RESOURCE", path: i)),
                                         ).then((value) =>
                                             this);
                                       },

@@ -1,25 +1,41 @@
 import 'package:flutter/material.dart';
 
+import '../models/resource.dart';
+
 
 class ContentSharingScreen extends StatefulWidget {
   final String action;
+  final String path;
 
-  ContentSharingScreen({required this.action});
+  ContentSharingScreen({required this.action, required this.path});
 
   @override
-  _ContentSharingScreen createState() => _ContentSharingScreen();
+  _ContentSharingScreen createState() => _ContentSharingScreen(action: action, path: path);
 }
 
 class _ContentSharingScreen extends State<ContentSharingScreen> {
   final TextEditingController _usernameController = TextEditingController();
-  final List<String> _usernames = [];
+  List<String> _usernames = [];
+  final String action;
+  final String path;
 
+  _ContentSharingScreen({required this.action, required this.path})
+  {
+    getUsers();
+  }
+
+  getUsers() async{
+    // _usernames = await Resource.getSharedUsernames(action, path) ;
+    setState(() {
+    });
+  }
 
   void _addUsername() {
-    setState(() {
+    setState(() async {
       String username = _usernameController.text.trim();
       if (username.isNotEmpty) {
         _usernames.add(username);
+        await Resource.addPermission(action, path, username, "GIVE");
         _usernameController.clear();
       }
     });
