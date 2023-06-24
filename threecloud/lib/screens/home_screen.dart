@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import '../models/directory.dart';
 import 'package:threecloud/screens/file_details_screen.dart';
 import '../models/resource.dart';
 import '../widgets/floating_button.dart';
+import 'content_sharing_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String currentPath;
@@ -88,6 +90,17 @@ class _HomeScreenState extends State<HomeScreen>{
                                               TextButton(
                                                 onPressed: () {
                                                   Navigator.pop(context);
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(builder: (context) => ContentSharingScreen(action: "DIRECTORY",)),
+                                                  ).then((value) =>
+                                                  this);
+                                                },
+                                                child: const Text('Share')
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
                                                 },
                                                 child: const Text('Close'),
                                               ),
@@ -135,6 +148,17 @@ class _HomeScreenState extends State<HomeScreen>{
                                     child: const Text('Delete'),),
                                   TextButton(onPressed: () {Navigator.pop(context);Navigator.push(context,MaterialPageRoute(builder: (context) => FileDetailsScreen(filePath: i,)),);},
                                     child: const Text('Details'),),
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => ContentSharingScreen(action: "RESOURCE",)),
+                                        ).then((value) =>
+                                            this);
+                                      },
+                                      child: const Text('Share')
+                                  ),
                                   TextButton(onPressed: () {Navigator.pop(context);},
                                     child: const Text('Close'),),
                                   ],
@@ -145,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen>{
                         Column(
                             children:[ Expanded(child: FileIcon(i,size: 70,)),
                             const SizedBox(height: 10),
-                            Text("${i}",style: TextStyle(color: Colors.black,fontSize: 18,fontWeight: FontWeight.w600,))])
+                            Text("${i.toString().split("/").last}",style: TextStyle(color: Colors.black,fontSize: 18,fontWeight: FontWeight.w600,))])
                             )]
                   ),
                   floatingActionButton:FloatingButton(currentPath: currentPath + "/", homeScreen:getResources),
