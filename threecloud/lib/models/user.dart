@@ -52,7 +52,7 @@ class User {
     }
   }
 
-  static Future<void> logIn(String username, String password) async
+  static Future<String> logIn(String username, String password) async
   {
     bool trustSelfSigned = true;
     HttpClient httpClient = HttpClient()
@@ -75,8 +75,9 @@ class User {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       await rememberThatUserLoggedIn(username, data['token']);
+      return username;
     } else {
-      throw StateError(res['body']);
+      throw StateError(res['data']);
     }
   }
 

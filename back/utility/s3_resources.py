@@ -37,6 +37,9 @@ def delete_resource_from_s3(path):
 
 def get_resource_from_s3(path):
     s3 = boto3.client('s3')
-    response = s3.get_object(Bucket=bucket_name_resources, Key=path)
-    file_contents = response['Body'].read()
-    return file_contents
+    try:
+        response = s3.get_object(Bucket=bucket_name_resources, Key=path)
+        file_contents = response['Body'].read()
+        return file_contents
+    except boto3.exceptions.botocore.exceptions.ClientError:
+        return None

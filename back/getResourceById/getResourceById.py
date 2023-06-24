@@ -25,7 +25,7 @@ def getResourceById(event, context):
         }
         return create_response(400, body)
     body = {
-        'data':str(base64.b64encode(file))
+        'data':base64.b64encode(file).decode('utf-8')
     }
     return create_response(200, body)
 

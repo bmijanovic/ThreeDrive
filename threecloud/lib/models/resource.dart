@@ -1,10 +1,10 @@
-
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:http/io_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:threecloud/urls.dart';
+import 'package:lecle_downloads_path_provider/lecle_downloads_path_provider.dart';
+
 
 class Resource {
   static Future<String> upload(String name, String image,List<Map<String,String>> tags,String current_path) async
@@ -115,7 +115,38 @@ class Resource {
       throw StateError(res['body']);
     }
   }
+
+  static Future<void> downloadResource(String path) async
+  {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.get(
+      Uri.parse(
+          "${url}resource?path=$path"),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
+      },
+    );
+    var res = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      List<int> bytes = base64.decode(res['data']);
+      String downloadsDirPath = '/storage/emulated/0/Download';
+      String filePath = '$downloadsDirPath/${path.split("/")[-1]}';
+      File file = File(filePath);
+      await file.writeAsBytes(bytes);
+    }
+    else {
+      throw StateError(res['data']);
+    }
+  }
+
 }
+
+
 class DirectoryDTO{
   late List<String> directories;
   late List<String> files;

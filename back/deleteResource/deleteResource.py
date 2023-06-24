@@ -17,15 +17,15 @@ def delete(event, context):
 
         resource = find_file_by_path(path)
         if resource is None:
-            return create_response(400, {'data': json.dumps('Invalid request body')})
+            return create_response(400, {'data': json.dumps('Resource does not exist')})
         resource = resource[0]
         if resource['owner'] != event['requestContext']['authorizer']['username']:
-            return create_response(400, {'data': json.dumps('Invalid request body')})
+            return create_response(400, {'data': json.dumps('Resource does not exist')})
 
         head = os.path.split(path)[0]
         directory = find_directory_by_path(head)
         if directory is None:
-            return create_response(400, {'data': json.dumps('Invalid request body')})
+            return create_response(400, {'data': json.dumps('Directory does not exist')})
         directory = directory[0]
 
         items = directory['items']
@@ -38,7 +38,7 @@ def delete(event, context):
             'data': "File Deleted"
         }
         return create_response(200, body)
-    except ():
+    except:
         body = {
             'data': json.dumps('Invalid request body')
         }
