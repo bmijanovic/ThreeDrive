@@ -138,10 +138,10 @@ functions:
           path: directory
           method: put
           cors: true
-#            authorizer:
-#              name: authorize
-#              resultTtlInSeconds: 0
-#              type: token
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
 
   deleteDirectory:
     handler: deleteDirectory/deleteDirectory.delete
@@ -153,10 +153,10 @@ functions:
           path: directory
           method: delete
           cors: true
-  #            authorizer:
-  #              name: authorize
-  #              resultTtlInSeconds: 0
-  #              type: token
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
 
   getMyResources:
     handler: getMyResources/getMyResources.getMyResources
