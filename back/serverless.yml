@@ -128,6 +128,21 @@ functions:
             resultTtlInSeconds: 0
             type: token
 
+  editDirectory:
+    handler: editDirectory/editDirectory.edit
+    package:
+      patterns:
+        - 'editDirectory/**'
+    events:
+      - http:
+          path: edit
+          method: put
+          cors: true
+#            authorizer:
+#              name: authorize
+#              resultTtlInSeconds: 0
+#              type: token
+
   getMyResources:
     handler: getMyResources/getMyResources.getMyResources
     package:

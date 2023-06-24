@@ -36,6 +36,8 @@ def create(event, context):
 def create_directory(path, name):
     if find_directory_by_path_and_name(path, name):
         raise ValueError("Directory already exist!")
+    if "/" in name:
+        raise ValueError("Cannot have / in name!")
 
     time = datetime.datetime.now().time()
 
