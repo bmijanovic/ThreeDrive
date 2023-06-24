@@ -79,7 +79,8 @@ class _HomeScreenState extends State<HomeScreen>{
                                               ),
                                               TextButton(
                                                 onPressed: () {
-                                                  deleteFile(i);
+                                                  deleteFolder(i).whenComplete(() =>
+                                                      getResources());;
                                                   Navigator.pop(context);
                                                 },
                                                 child: const Text('Delete'),
@@ -144,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen>{
                             Text("${i}",style: TextStyle(color: Colors.black,fontSize: 18,fontWeight: FontWeight.w600,))])
                             )]
                   ),
-                  floatingActionButton:FloatingButton(currentPath: currentPath+"/",homeScreen:getResources),
+                  floatingActionButton:FloatingButton(currentPath: currentPath + "/", homeScreen:getResources),
 
                 )
             );
@@ -156,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen>{
 
   }
 
-  Future<void> deleteFile(String s)
+  Future<void> deleteFolder(String s)
   async {
     try
     {

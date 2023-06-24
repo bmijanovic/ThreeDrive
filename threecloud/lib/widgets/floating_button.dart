@@ -75,6 +75,7 @@ class FloatingButton extends StatelessWidget {
       // Handle the folderName
       print('Folder Name: $folderName');
     }
+    Navigator.push(context, homeScreen());
   }
 
 
