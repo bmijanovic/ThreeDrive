@@ -1,11 +1,13 @@
 import json
 import os
+import uuid
+
 import boto3
 
 table_name_directory = os.environ['DIRECTORIES_TABLE_NAME']
 table_name_users = os.environ['USERS_TABLE_NAME']
 table_name_resources = os.environ['RESOURCES_TABLE_NAME']
-s3_name_resources = os.environ['RESOURCES_BUCKET_NAME']
+bucket_name = os.environ['RESOURCES_BUCKET_NAME']
 SECRET_KEY = 'pamuk'
 
 
@@ -90,7 +92,7 @@ def find_file_by_path(path):
 
 def get_files_from_s3(path):
     s3 = boto3.resource('s3')
-    bucket = s3.Bucket(s3_name_resources)
+    bucket = s3.Bucket(bucket_name)
     files = []
     for obj in bucket.objects.filter(Prefix=path):
         files.append(obj)
@@ -103,13 +105,13 @@ def update_s3_key(old_key, new_key):
     try:
         # Copy the object to the new key
         s3.copy_object(
-            Bucket=s3_name_resources,
-            CopySource={'Bucket': s3_name_resources, 'Key': old_key},
+            Bucket=bucket_name,
+            CopySource={'Bucket': bucket_name, 'Key': old_key},
             Key=new_key
         )
 
         # Delete the object with the old key
-        s3.delete_object(Bucket=s3_name_resources, Key=old_key)
+        s3.delete_object(Bucket=bucket_name, Key=old_key)
 
         print(f"Object key updated: '{old_key}' -> '{new_key}'")
     except Exception as e:
@@ -135,4 +137,10 @@ def delete_resource_from_dynamo(path):
 
 def delete_resource_from_s3(path):
     s3 = boto3.client('s3')
-    s3.delete_object(Bucket=s3_name_resources, Key=f'{path}')
+    s3.delete_object(Bucket=bucket_name, Key=f'{path}')
+def get_resource_from_s3(path):
+    s3 = boto3.client('s3')
+    s3.download_file(bucket_name, path, '/tmp/' + path)
+    with open('/tmp/' + path, 'rb') as file:
+        file_content = file.read()
+        return file_content.decode('utf-8')

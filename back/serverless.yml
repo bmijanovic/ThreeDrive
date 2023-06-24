@@ -113,6 +113,36 @@ functions:
             resultTtlInSeconds: 0
             type: token
 
+  getResourceMetadataById:
+    handler: getResourceMetadataById/getResourceMetadataById.getResourceMetadataById
+    package:
+      include:
+        - 'getResourceMetadataById/**'
+    events:
+      - http:
+          path: resource/metadata
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  getResourceById:
+    handler: getResourceById/getResourceById.getResourceById
+    package:
+      include:
+        - 'getResourceById/**'
+    events:
+      - http:
+          path: resource
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
   createDirectory:
     handler: createDirectory/createDirectory.create
     package:
@@ -172,6 +202,7 @@ functions:
             name: authorize
             resultTtlInSeconds: 0
             type: token
+
 
 
 resources:

@@ -5,6 +5,7 @@ import 'package:file_icon/file_icon.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../models/directory.dart';
+import 'package:threecloud/screens/file_details_screen.dart';
 import '../models/resource.dart';
 import '../widgets/floating_button.dart';
 
@@ -33,7 +34,6 @@ class _HomeScreenState extends State<HomeScreen>{
 
   @override
   Widget build(BuildContext context) {
-    var data=[1,2,3,4];
     return FutureBuilder<dynamic>(
       future: elements, // function where you call your api
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {  // AsyncSnapshot<Your object type>
@@ -91,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen>{
                                                 },
                                                 child: const Text('Close'),
                                               ),
+
                                             ],
                                           ),
                                         ),
@@ -132,6 +133,8 @@ class _HomeScreenState extends State<HomeScreen>{
                                     Navigator.pop(context);
                                   },
                                     child: const Text('Delete'),),
+                                  TextButton(onPressed: () {Navigator.pop(context);Navigator.push(context,MaterialPageRoute(builder: (context) => FileDetailsScreen(filePath: i,)),);},
+                                    child: const Text('Details'),),
                                   TextButton(onPressed: () {Navigator.pop(context);},
                                     child: const Text('Close'),),
                                   ],
@@ -140,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen>{
                                   )),
                             child:
                         Column(
-                          children:[ Expanded(child: FileIcon(i,size: 70,)),
+                            children:[ Expanded(child: FileIcon(i,size: 70,)),
                             const SizedBox(height: 10),
                             Text("${i}",style: TextStyle(color: Colors.black,fontSize: 18,fontWeight: FontWeight.w600,))])
                             )]
