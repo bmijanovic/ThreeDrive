@@ -1,6 +1,7 @@
 import json
 
-import utility.utils
+from utility.dynamo_directory import find_directory_by_path, insert_directory_in_dynamo
+from utility.dynamo_resources import find_file_by_path, insert_file_in_dynamo
 from utility.utils import create_response
 
 
@@ -34,9 +35,9 @@ def share(event, context):
 def share_content(user, path, type, username):
     content = None
     if type == 'DIRECTORY':
-        content = utility.utils.find_directory_by_path(path)
+        content = find_directory_by_path(path)
     elif type == 'RESOURCE':
-        content = utility.utils.find_file_by_path(path)
+        content = find_file_by_path(path)
     else:
         raise ValueError("Wrong type")
 
@@ -49,9 +50,9 @@ def share_content(user, path, type, username):
     content['share'] += [username]
 
     if type == 'DIRECTORY':
-        utility.utils.insert_directory_in_dynamo(content)
+        insert_directory_in_dynamo(content)
     elif type == 'RESOURCE':
-        utility.utils.insert_file_in_dynamo(content)
+        insert_file_in_dynamo(content)
     else:
         raise ValueError("Wrong type")
 
