@@ -7,8 +7,9 @@ from utility.utils import create_response
 
 def get_list(event, context):
     try:
-        path_param = event["queryStringParameters"]["path"]
-        path, type = path_param.rsplit("/", 1)
+        path_param = event["queryStringParameters"]
+        path = path_param["path"]
+        type = path_param["type"]
 
     except (KeyError, json.decoder.JSONDecodeError):
         body = {
@@ -16,8 +17,9 @@ def get_list(event, context):
         }
         return create_response(400, body)
 
-    user = event['requestContext']['authorizer']['username']
+    # user = event['requestContext']['authorizer']['username']
     # user = None
+    print(path, type)
     try:
         if type == 'DIRECTORY':
             content = find_directory_by_path(path)
