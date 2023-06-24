@@ -203,6 +203,21 @@ functions:
             resultTtlInSeconds: 0
             type: token
 
+  contentSharing:
+      handler: contentSharing/contentSharing.share
+      package:
+        include:
+          - 'contentSharing/**'
+      events:
+        - http:
+            path: share
+            method: put
+            cors: true
+            authorizer:
+              name: authorize
+              resultTtlInSeconds: 0
+              type: token
+
 
 
 resources:

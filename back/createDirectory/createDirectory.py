@@ -46,6 +46,7 @@ def create_directory(path, name, user):
         'name': name,
         'owner': user,
         'items': [],
+        'share': [],
         'directories': [],
         'time_created': str(time),
         'time_updated': str(time)
