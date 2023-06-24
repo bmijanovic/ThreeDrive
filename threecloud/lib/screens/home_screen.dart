@@ -159,6 +159,22 @@ class _HomeScreenState extends State<HomeScreen>{
                                       },
                                       child: const Text('Share')
                                   ),
+                                  TextButton(onPressed: () {
+                                    Resource.downloadResource(i).whenComplete(() =>
+                                    {
+                                      Fluttertoast.showToast(
+                                      msg: "File downloaded successfully!",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0
+                                      )
+                                    });
+                                    Navigator.pop(context);
+                                    },
+                                    child: const Text('Download'),),
                                   TextButton(onPressed: () {Navigator.pop(context);},
                                     child: const Text('Close'),),
                                   ],
