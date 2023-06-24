@@ -9,7 +9,9 @@ import re
 from hashlib import sha256
 from dateutil.parser import parse
 
-from utility.utils import create_response, find_user_by_username
+from utility.dynamo_directory import insert_directory_in_dynamo
+from utility.dynamo_users import find_user_by_username
+from utility.utils import create_response
 
 table_name = os.environ['USERS_TABLE_NAME']
 table_name_dir = os.environ['DIRECTORIES_TABLE_NAME']
@@ -127,9 +129,3 @@ def make_user_home_directory(username):
     }
 
     insert_directory_in_dynamo(new_directory)
-
-
-def insert_directory_in_dynamo(new_directory):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name_dir)
-    table.put_item(Item=new_directory)

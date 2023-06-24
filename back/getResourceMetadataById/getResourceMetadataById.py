@@ -10,7 +10,8 @@ import sys
 import datetime
 import math
 
-from utility.utils import create_response, find_file_by_path
+from utility.dynamo_resources import find_file_by_path
+from utility.utils import create_response
 
 table_name = os.environ['RESOURCES_TABLE_NAME']
 bucket_name = os.environ['RESOURCES_BUCKET_NAME']

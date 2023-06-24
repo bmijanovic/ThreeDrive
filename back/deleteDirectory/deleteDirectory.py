@@ -1,9 +1,10 @@
 import json
 import os
 
-
-from utility.utils import create_response, find_directory_by_path, \
-    delete_directory_from_dynamo, delete_resource_from_s3, delete_resource_from_dynamo, insert_directory_in_dynamo
+from utility.dynamo_directory import find_directory_by_path, insert_directory_in_dynamo, delete_directory_from_dynamo
+from utility.dynamo_resources import delete_resource_from_dynamo
+from utility.s3_resources import delete_resource_from_s3
+from utility.utils import create_response
 
 table_name = os.environ['DIRECTORIES_TABLE_NAME']
 s3_name = os.environ['RESOURCES_BUCKET_NAME']

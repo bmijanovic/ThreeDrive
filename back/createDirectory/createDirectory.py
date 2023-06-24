@@ -4,7 +4,8 @@ import os
 
 import boto3
 
-from utility.utils import create_response, find_directory_by_path_and_name, find_directory_by_path, insert_directory_in_dynamo
+from utility.dynamo_directory import find_directory_by_path_and_name, find_directory_by_path, insert_directory_in_dynamo
+from utility.utils import create_response
 
 table_name = os.environ['DIRECTORIES_TABLE_NAME']
 
