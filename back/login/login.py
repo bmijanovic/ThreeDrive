@@ -3,7 +3,8 @@ from hashlib import sha256
 
 import jwt
 
-from utility.utils import create_response, find_user_by_username, SECRET_KEY
+from utility.dynamo_users import find_user_by_username
+from utility.utils import create_response, SECRET_KEY
 
 
 def login(event, context):

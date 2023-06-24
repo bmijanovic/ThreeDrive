@@ -1,6 +1,7 @@
 import jwt
 
-from utility.utils import find_user_by_username, SECRET_KEY
+from utility.dynamo_users import find_user_by_username
+from utility.utils import SECRET_KEY
 
 
 def validate_token(token):

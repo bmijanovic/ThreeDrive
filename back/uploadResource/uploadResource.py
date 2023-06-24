@@ -6,7 +6,9 @@ import filetype
 import sys
 import datetime
 
-from utility.utils import create_response, find_directory_by_path, insert_directory_in_dynamo, find_file_by_path
+from utility.dynamo_directory import find_directory_by_path, insert_directory_in_dynamo
+from utility.dynamo_resources import find_file_by_path
+from utility.utils import create_response
 
 table_name = os.environ['RESOURCES_TABLE_NAME']
 bucket_name = os.environ['RESOURCES_BUCKET_NAME']

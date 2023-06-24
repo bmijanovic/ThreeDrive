@@ -10,7 +10,8 @@ import sys
 import datetime
 import math
 
-from utility.utils import create_response, find_file_by_path, get_resource_from_s3
+from utility.s3_resources import get_resource_from_s3
+from utility.utils import create_response
 
 table_name = os.environ['RESOURCES_TABLE_NAME']
 bucket_name = os.environ['RESOURCES_BUCKET_NAME']
@@ -24,7 +25,7 @@ def getResourceById(event, context):
         }
         return create_response(400, body)
     body = {
-        'data':file
+        'data':str(base64.b64encode(file))
     }
     return create_response(200, body)
 

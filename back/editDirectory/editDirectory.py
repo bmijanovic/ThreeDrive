@@ -4,8 +4,11 @@ import os
 
 import boto3
 
-from utility.utils import create_response, find_directory_by_path_and_name, find_directory_by_path, \
-    insert_file_in_dynamo, find_file_by_path, update_s3_key, insert_directory_in_dynamo, delete_directory_from_dynamo
+from utility.dynamo_directory import find_directory_by_path_and_name, find_directory_by_path, \
+    insert_directory_in_dynamo, delete_directory_from_dynamo
+from utility.dynamo_resources import find_file_by_path, insert_file_in_dynamo
+from utility.s3_resources import update_s3_key
+from utility.utils import create_response
 
 table_name = os.environ['DIRECTORIES_TABLE_NAME']
 s3_name = os.environ['RESOURCES_BUCKET_NAME']
