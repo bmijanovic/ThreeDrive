@@ -27,7 +27,7 @@ def edit(event, context):
         return create_response(400, body)
 
     try:
-        edit_directory(path, name, new_name)
+        edit_directory(path, name, new_name, event['requestContext']['authorizer']['username'])
         body = {
             'data': json.dumps('Directory edited successfully')
         }
@@ -39,7 +39,7 @@ def edit(event, context):
         return create_response(400, body)
 
 
-def edit_directory(path, name, new_name):
+def edit_directory(path, name, new_name, user):
     if find_directory_by_path_and_name(path, new_name):
         raise ValueError("Directory already exist!")
 
@@ -47,7 +47,7 @@ def edit_directory(path, name, new_name):
     print(time)
     first = True
     level = len(path.split('/')) - 1
-    edit_item(level, first, path, name, new_name, time)
+    edit_item(level, first, path, name, new_name, time, user)
 
 
 def make_path(path, level, new_name):
@@ -56,11 +56,16 @@ def make_path(path, level, new_name):
     return "/".join(slices)
 
 
-def edit_item(level, first, path, name, new_name, time):
-    old_directory = find_directory_by_path(path)[0]
+def edit_item(level, first, path, name, new_name, time, user):
+    old_directory = find_directory_by_path(path)
+    if old_directory is None:
+        return create_response(400, {'data': json.dumps('Invalid request body')})
+    old_directory = old_directory[0]
     old_path = old_directory['path']
     old_directory['path'] = make_path(path, level, new_name)
     if first:
+        if old_directory['owner'] != user:
+            return create_response(400, {'data': json.dumps('Invalid request body')})
         old_directory['name'] = new_name
         first = False
 
@@ -68,7 +73,10 @@ def edit_item(level, first, path, name, new_name, time):
 
     for i, item in enumerate(old_directory['items']):
         # dynamodb
-        file = find_file_by_path(item)[0]
+        file = find_file_by_path(item)
+        if file is None:
+            return create_response(400, {'data': json.dumps('Invalid request body')})
+        file = file[0]
         file['path'] = make_path(path, level, new_name)
         file['timeModified'] = time
         file['resource_id'] = file['resource_id'].replace(name, new_name)

@@ -20,6 +20,13 @@ def delete(event, context):
         }
         return create_response(400, body)
 
+    directory = find_directory_by_path(path)
+    if directory is None:
+        return create_response(400, {'data': json.dumps('Invalid request body')})
+    directory = directory[0]
+    if directory['owner'] != event['requestContext']['authorizer']['username']:
+        return create_response(400, {'data': json.dumps('Invalid request body')})
+
     try:
         delete_from_parent(path)
         delete_directory(path)
@@ -34,12 +41,18 @@ def delete(event, context):
         return create_response(400, body)
 
 def delete_from_parent(path):
-    directory = find_directory_by_path('/'.join(path.split('/')[:-1]))[0]
+    directory = find_directory_by_path('/'.join(path.split('/')[:-1]))
+    if directory is None:
+        return create_response(400, {'data': json.dumps('Invalid request body')})
+    directory = directory[0]
     directory['directories'].remove(path)
     insert_directory_in_dynamo(directory)
 
 def delete_directory(path):
-    directory = find_directory_by_path(path)[0]
+    directory = find_directory_by_path(path)
+    if directory is None:
+        return create_response(400, {'data': json.dumps('Invalid request body')})
+    directory = directory[0]
     for i, item in enumerate(directory['items']):
         # dynamodb
         delete_resource_from_dynamo(item)

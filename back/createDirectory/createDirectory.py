@@ -20,9 +20,9 @@ def create(event, context):
             'data': json.dumps('Invalid request body')
         }
         return create_response(400, body)
-
+    user = event['requestContext']['authorizer']['username']
     try:
-        create_directory(path, name)
+        create_directory(path, name, user)
         body = {
             'data': json.dumps('Directory creation successfully')
         }
@@ -34,7 +34,7 @@ def create(event, context):
         return create_response(400, body)
 
 
-def create_directory(path, name):
+def create_directory(path, name, user):
     if find_directory_by_path_and_name(path, name):
         raise ValueError("Directory already exist!")
     if "/" in name:
@@ -45,7 +45,7 @@ def create_directory(path, name):
     new_directory = {
         'path': path + name,
         'name': name,
-        'owner': 'TODO',
+        'owner': user,
         'items': [],
         'directories': [],
         'time_created': str(time),
