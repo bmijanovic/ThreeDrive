@@ -10,6 +10,7 @@ def share(event, context):
         body = json.loads(event['body'])
         path = body['path']
         type = body['type']
+        action = body['action']
         username = body['username']
     except (KeyError, json.decoder.JSONDecodeError):
         body = {
@@ -17,12 +18,12 @@ def share(event, context):
         }
         return create_response(400, body)
 
-    # user = event['requestContext']['authorizer']['username']
-    user = None
+    user = event['requestContext']['authorizer']['username']
+    # user = None
     try:
-        share_content(user, path, type, username)
+        share_content(user, path, type, username, action)
         body = {
-            'data': json.dumps('Content successfully shared')
+            'data': json.dumps('Content successfully ' + 'shared' if action == "GIVE" else 'revoked')
         }
         return create_response(200, body)
     except ValueError as err:
@@ -32,7 +33,10 @@ def share(event, context):
         return create_response(400, body)
 
 
-def share_content(user, path, type, username):
+def share_content(user, path, type, username, action):
+    if "/" not in path:
+        raise ValueError("Root folder cannot be shared")
+
     content = None
     if type == 'DIRECTORY':
         content = find_directory_by_path(path)
@@ -44,10 +48,19 @@ def share_content(user, path, type, username):
     if content is None:
         raise ValueError("Invalid request body")
     content = content[0]
-    # if content['owner'] != user:
-    #     raise ValueError("Invalid request body")
+    if content['owner'] != user:
+        raise ValueError("Invalid request body")
 
-    content['share'] += [username]
+    if action == "GIVE":
+        if username in content['share']:
+            raise ValueError("This user already have permission for this content!")
+        content['share'] += [username]
+    elif action == "REVOKE":
+        if username not in content['share']:
+            raise ValueError("This user does not have permission for this content!")
+        content['share'].remove(username)
+    else:
+        raise ValueError("Wrong type")
 
     if type == 'DIRECTORY':
         insert_directory_in_dynamo(content)
