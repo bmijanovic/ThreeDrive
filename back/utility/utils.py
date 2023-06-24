@@ -9,7 +9,6 @@ s3_name_resources = os.environ['RESOURCES_BUCKET_NAME']
 SECRET_KEY = 'pamuk'
 
 
-
 def create_response(status, body):
     return {
         'statusCode': status,
@@ -33,7 +32,6 @@ def find_directory_by_path_and_name(path, name):
         }
     )
     return response['Items']
-
 
 
 def find_directory_by_path(path):
@@ -99,11 +97,6 @@ def get_files_from_s3(path):
     return files
 
 
-import boto3
-
-import boto3
-
-
 def update_s3_key(old_key, new_key):
     s3 = boto3.client('s3')
 
@@ -123,15 +116,23 @@ def update_s3_key(old_key, new_key):
         print(f"Error updating object key: {str(e)}")
 
 
-import boto3
-
-
-def delete_item_from_dynamo(key):
+def delete_directory_from_dynamo(key):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name_directory)
 
     try:
-        table.delete_item(Key=key)
+        table.delete_item(Key={"path": key})
         print("Item deleted successfully.")
     except Exception as e:
         print(f"Error deleting item from DynamoDB: {str(e)}")
+
+
+def delete_resource_from_dynamo(path):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name_resources)
+    table.delete_item(Key={"path": path})
+
+
+def delete_resource_from_s3(path):
+    s3 = boto3.client('s3')
+    s3.delete_object(Bucket=s3_name_resources, Key=f'{path}')

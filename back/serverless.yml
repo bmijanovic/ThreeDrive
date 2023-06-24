@@ -135,13 +135,28 @@ functions:
         - 'editDirectory/**'
     events:
       - http:
-          path: edit
+          path: directory
           method: put
           cors: true
 #            authorizer:
 #              name: authorize
 #              resultTtlInSeconds: 0
 #              type: token
+
+  deleteDirectory:
+    handler: deleteDirectory/deleteDirectory.delete
+    package:
+      patterns:
+        - 'deleteDirectory/**'
+    events:
+      - http:
+          path: directory
+          method: delete
+          cors: true
+  #            authorizer:
+  #              name: authorize
+  #              resultTtlInSeconds: 0
+  #              type: token
 
   getMyResources:
     handler: getMyResources/getMyResources.getMyResources

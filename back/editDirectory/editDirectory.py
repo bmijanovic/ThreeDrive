@@ -5,7 +5,7 @@ import os
 import boto3
 
 from utility.utils import create_response, find_directory_by_path_and_name, find_directory_by_path, \
-    insert_file_in_dynamo, find_file_by_path, update_s3_key, insert_directory_in_dynamo, delete_item_from_dynamo
+    insert_file_in_dynamo, find_file_by_path, update_s3_key, insert_directory_in_dynamo, delete_directory_from_dynamo
 
 table_name = os.environ['DIRECTORIES_TABLE_NAME']
 s3_name = os.environ['RESOURCES_BUCKET_NAME']
@@ -82,4 +82,4 @@ def edit_item(level, first, path, name, new_name, time):
         old_directory['directories'][i] = make_path(directory, level, new_name)
 
     insert_directory_in_dynamo(old_directory)
-    delete_item_from_dynamo(old_path)
+    delete_directory_from_dynamo(old_path)
