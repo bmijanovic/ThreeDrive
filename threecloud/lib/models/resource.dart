@@ -134,7 +134,7 @@ class Resource {
     if (response.statusCode == 200) {
       List<int> bytes = base64.decode(res['data']);
       String downloadsDirPath = '/storage/emulated/0/Download';
-      String filePath = '$downloadsDirPath/${path.split("/")[-1]}';
+      String filePath = '$downloadsDirPath/${path.split("/")[path.split("/").length-1]}';
       File file = File(filePath);
       await file.writeAsBytes(bytes);
     }
