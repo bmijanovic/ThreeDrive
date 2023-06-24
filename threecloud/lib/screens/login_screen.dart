@@ -80,7 +80,7 @@ class LoginScreen extends StatelessWidget {
       await User.logIn(usernameController.text, passwordController.text);
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen(currentPath: 'vukasinb7',)),
+        MaterialPageRoute(builder: (context) => HomeScreen(currentPath: 'mrmijan',)),
       );
       Fluttertoast.showToast(
           msg: "Logged in successfully!",

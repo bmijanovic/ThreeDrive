@@ -22,7 +22,33 @@ class Directory {
       body: json.encode(
         {
           'name': name,
-          'path': path + '/',
+          'path': path,
+        },
+      ),
+    );
+    var res = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw StateError(res['data']);
+    }
+  }
+  static Future<bool> delete(String path) async
+  {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.delete(
+      Uri.parse(url + "directory"),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: "Bearer ${(await SharedPreferences.getInstance()).getString("token")}"
+      },
+      body: json.encode(
+        {
+          'path': path,
         },
       ),
     );

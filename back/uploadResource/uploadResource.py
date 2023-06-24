@@ -80,6 +80,7 @@ def insert_resource_in_dynamo(resource_item):
     table = dynamodb.Table(table_name)
     table.put_item(Item=resource_item)
 
+
 def insert_resource_in_s3(fileKey, fileBytes):
     s3 = boto3.client('s3')
     s3.put_object(Bucket=bucket_name, Key=f'{fileKey}', Body=fileBytes)
