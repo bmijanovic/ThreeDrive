@@ -273,10 +273,10 @@ functions:
           path: sharedContent
           method: get
           cors: true
-#          authorizer:
-#            name: authorize
-#            resultTtlInSeconds: 0
-#            type: token
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
 
 resources:
   Resources:
