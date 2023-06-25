@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../models/resource.dart';
 
@@ -15,7 +16,7 @@ class ContentSharingScreen extends StatefulWidget {
 
 class _ContentSharingScreen extends State<ContentSharingScreen> {
   final TextEditingController _usernameController = TextEditingController();
-  List<String> _usernames = [];
+  List<dynamic> elements = [];
   final String action;
   final String path;
 
@@ -25,26 +26,76 @@ class _ContentSharingScreen extends State<ContentSharingScreen> {
   }
 
   getUsers() async{
-    // _usernames = await Resource.getSharedUsernames(action, path) ;
+    try
+    {
+      elements = await Resource.getSharedUsernames(action, path);
+    }
+    catch (e)
+    {
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.grey,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
     setState(() {
     });
   }
 
-  void _addUsername() {
-    setState(() async {
-      String username = _usernameController.text.trim();
-      if (username.isNotEmpty) {
-        _usernames.add(username);
+  Future<void> _addUsername() async {
+    String username = _usernameController.text.trim();
+    if (username.isNotEmpty) {
+      try
+      {
         await Resource.addPermission(action, path, username, "GIVE");
-        _usernameController.clear();
+        setState(() {
+          if (username.isNotEmpty) {
+            elements.add(username);
+          }
+        });
       }
-    });
+      catch (e)
+      {
+        Fluttertoast.showToast(
+          msg: e.toString(),
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.grey,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+      _usernameController.clear();
+    }
+
   }
 
-  void _removeUsername(String username) {
-    setState(() {
-      _usernames.remove(username);
-    });
+  Future<void> _removeUsername(String username) async {
+    try
+    {
+      await Resource.addPermission(action, path, username, "REVOKE");
+      setState(() {
+        elements.remove(username);
+      });
+    }
+    catch (e)
+    {
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.grey,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
+
   }
 
   @override
@@ -62,7 +113,7 @@ class _ContentSharingScreen extends State<ContentSharingScreen> {
             TextField(
               controller: _usernameController,
               decoration: const InputDecoration(
-                labelText: 'Enter a username',
+                labelText: 'Enter a username to add permission',
               ),
             ),
             SizedBox(height: 10),
@@ -70,17 +121,17 @@ class _ContentSharingScreen extends State<ContentSharingScreen> {
               onPressed: _addUsername,
               child: Text('Add Username'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             const Text(
-              'Usernames:',
+              'Usernames who can access this content:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
-                itemCount: _usernames.length,
+                itemCount: elements.length,
                 itemBuilder: (context, index) {
-                  final username = _usernames[index];
+                  final username = elements[index];
                   return ListTile(
                     title: Text(username),
                     trailing: IconButton(

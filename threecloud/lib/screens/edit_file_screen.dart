@@ -39,7 +39,7 @@ class EditFileScreenState extends State<EditFileScreen>{
     Future<dynamic> futureInstance = Resource.getResource(this.current_path); // Assuming you have a function that returns a Future<MyClass>
 
     var myClassInstance = await futureInstance;
-    print(myClassInstance)
+    print(myClassInstance);
   }
 
   Future<void> _selectFile(BuildContext context) async {

@@ -163,7 +163,7 @@ class Resource {
     return newFilePath;
   }
   
-  static Future<List<String>> getSharedUsernames(String action, String path) async
+  static Future<List<dynamic>> getSharedUsernames(String action, String path) async
   {
     bool trustSelfSigned = true;
     HttpClient httpClient = HttpClient()
@@ -181,7 +181,7 @@ class Resource {
     );
     var res = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      print(res);
+      print(res['data']);
       return res['data'];
     } else {
       throw StateError(res['body']);
@@ -214,7 +214,7 @@ class Resource {
     if (response.statusCode == 200) {
       return true;
     } else {
-      throw StateError(res['body']);
+      throw StateError(res['data']);
     }
   }
 }

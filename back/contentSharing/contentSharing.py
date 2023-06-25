@@ -2,6 +2,7 @@ import json
 
 from utility.dynamo_directory import find_directory_by_path, insert_directory_in_dynamo
 from utility.dynamo_resources import find_file_by_path, insert_file_in_dynamo
+from utility.dynamo_users import find_user_by_username
 from utility.utils import create_response
 
 
@@ -36,6 +37,13 @@ def share(event, context):
 def share_content(user, path, type, username, action):
     if "/" not in path:
         raise ValueError("Root folder cannot be shared")
+
+    if username == user:
+        raise ValueError("Cannot give permission to yourself")
+    print(username)
+    print(find_user_by_username(username))
+    if not find_user_by_username(username):
+        raise ValueError("This user does not exist")
 
     content = None
     if type == 'DIRECTORY':
