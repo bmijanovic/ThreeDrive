@@ -17,7 +17,7 @@ def get_list(event, context):
         }
         return create_response(400, body)
 
-    # user = event['requestContext']['authorizer']['username']
+    user = event['requestContext']['authorizer']['username']
     # user = None
     print(path, type)
     try:
@@ -31,8 +31,8 @@ def get_list(event, context):
         if content is None:
             raise ValueError("Invalid request body")
         content = content[0]
-        # if content['owner'] != user:
-        #     raise ValueError("Invalid request body")
+        if content['owner'] != user:
+            raise ValueError("Invalid request body")
         body = {
             'data': content['share']
         }
