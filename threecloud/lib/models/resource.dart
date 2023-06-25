@@ -102,7 +102,7 @@ class Resource {
     IOClient ioClient = IOClient(httpClient);
     var response = await ioClient.get(
       Uri.parse(
-          "${url}resource?path=$path"),
+          "${url}resource/metadata?path=$path"),
       headers: {
         HttpHeaders.contentTypeHeader: 'application/json',
         HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
@@ -116,7 +116,7 @@ class Resource {
     }
   }
 
-  static Future<void> downloadResource(String path) async
+  static Future<void> downloadResource(String path,{String downloadPath='/storage/emulated/0/Download'}) async
     {
     bool trustSelfSigned = true;
     HttpClient httpClient = HttpClient()
@@ -133,7 +133,7 @@ class Resource {
     var res = jsonDecode(response.body);
     if (response.statusCode == 200) {
       List<int> bytes = base64.decode(res['data']);
-      String downloadsDirPath = '/storage/emulated/0/Download';
+      String downloadsDirPath = downloadPath;
       String fileName = path.split("/").last;
       String filePath = '$downloadsDirPath/$fileName';
 
