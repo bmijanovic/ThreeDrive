@@ -12,6 +12,11 @@ def get_files_from_s3(path):
         files.append(obj)
     return files
 
+
+def insert_resource_in_s3(fileKey, fileBytes):
+    s3 = boto3.client('s3')
+    s3.put_object(Bucket=bucket_name_resources, Key=f'{fileKey}', Body=fileBytes)
+
 def update_s3_key(old_key, new_key):
     s3 = boto3.client('s3')
 

@@ -143,6 +143,21 @@ functions:
             resultTtlInSeconds: 0
             type: token
 
+  editResource:
+    handler: editResource/editResource.editResource
+    package:
+      include:
+        - 'editResource/**'
+    events:
+      - http:
+          path: resource
+          method: put
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
   createDirectory:
     handler: createDirectory/createDirectory.create
     package:

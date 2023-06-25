@@ -8,6 +8,7 @@ import datetime
 
 from utility.dynamo_directory import find_directory_by_path, insert_directory_in_dynamo
 from utility.dynamo_resources import find_file_by_path
+from utility.s3_resources import insert_resource_in_s3
 from utility.utils import create_response
 
 table_name = os.environ['RESOURCES_TABLE_NAME']
@@ -90,6 +91,3 @@ def insert_resource_in_dynamo(resource_item):
     table.put_item(Item=resource_item)
 
 
-def insert_resource_in_s3(fileKey, fileBytes):
-    s3 = boto3.client('s3')
-    s3.put_object(Bucket=bucket_name, Key=f'{fileKey}', Body=fileBytes)
