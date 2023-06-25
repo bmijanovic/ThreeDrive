@@ -18,11 +18,11 @@ bucket_name = os.environ['RESOURCES_BUCKET_NAME']
 
 
 def getMyResources(event, context):
-    path_param=event["queryStringParameters"]["path"]
-    directory=None
+    path_param = event["queryStringParameters"]["path"]
+    directory = None
     if "/" in path_param:
-        path,name=path_param.rsplit("/", 1)
-        directory=find_directory_by_path_and_name(path + "/", name)
+        path, name = path_param.rsplit("/", 1)
+        directory = find_directory_by_path_and_name(path + "/", name)
         if directory is None:
             body = {
                 'data': json.dumps('Invalid request body')
@@ -34,8 +34,8 @@ def getMyResources(event, context):
             }
             return create_response(200, body)
     else:
-        path=""
-        name=path_param
+        path = ""
+        name = path_param
         directory = find_directory_by_path_and_name(path, name)
         if directory is None:
             body = {
