@@ -243,10 +243,25 @@ functions:
           path: share
           method: get
           cors: true
-#          authorizer:
-#            name: authorize
-#            resultTtlInSeconds: 0
-#            type: token
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  checkPermission:
+    handler: checkPermission/checkPermission.check
+    package:
+      include:
+        - 'checkPermission/**'
+    events:
+      - http:
+          path: permission
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
 
 
 resources:
