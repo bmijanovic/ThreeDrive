@@ -134,13 +134,33 @@ class Resource {
     if (response.statusCode == 200) {
       List<int> bytes = base64.decode(res['data']);
       String downloadsDirPath = '/storage/emulated/0/Download';
-      String filePath = '$downloadsDirPath/${path.split("/")[path.split("/").length-1]}';
-      File file = File(filePath);
+      String fileName = path.split("/").last;
+      String filePath = '$downloadsDirPath/$fileName';
+
+      File file = File(await generateUniqueFileName(filePath));
       await file.writeAsBytes(bytes);
     }
     else {
       throw StateError(res['data']);
     }
+  }
+
+  static Future<String> generateUniqueFileName(String originalFilePath) async {
+    String originalFileName = originalFilePath.split('/').last;
+    String originalFileExtension = originalFileName.split('.').last;
+
+    Directory downloadsDirPath = Directory('/storage/emulated/0/Download');
+    int count = 1;
+    String newFilePath = originalFilePath;
+    String newFileName = originalFileName;
+
+    while (await File(newFilePath).exists()) {
+      newFileName = '${originalFileName}_($count)';
+      newFilePath = '${downloadsDirPath.path}/$newFileName.$originalFileExtension';
+      count++;
+    }
+
+    return newFilePath;
   }
   
   static Future<List<String>> getSharedUsernames(String action, String path) async
