@@ -28,6 +28,9 @@ class RegistrationScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(
+                height: 50.0,
+              ),
               Text(
                 "Register to use our services!",
                 style: Theme.of(context).textTheme.titleMedium,
@@ -46,7 +49,7 @@ class RegistrationScreen extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          flex: 9,
+                          flex: 4,
                           child: BigTextField(
                               birthdateController,
                               TextInputType.datetime,
@@ -57,11 +60,11 @@ class RegistrationScreen extends StatelessWidget {
                         const Expanded(
                           flex: 1,
                           child: SizedBox(
-                            width: 10.0,
+                            width: 1.0,
                           ),
                         ),
                         Expanded(
-                          flex: 3,
+                          flex: 5,
                           child: ElevatedButton(
                             onPressed: () => _selectDate(context),
                             child: const Text('Select date'),
@@ -81,6 +84,9 @@ class RegistrationScreen extends StatelessWidget {
                     ElevatedButton(
                       onPressed: (() => createAccount(context)),
                       child: const Text("Register"),
+                    ),
+                    const SizedBox(
+                      height: 50.0,
                     )
                   ],
                 ),
