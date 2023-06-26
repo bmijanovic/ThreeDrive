@@ -6,7 +6,7 @@ import boto3
 
 from utility.dynamo_directory import find_directory_by_path_and_name, find_directory_by_path, \
     insert_directory_in_dynamo, delete_directory_from_dynamo
-from utility.dynamo_resources import find_file_by_path, insert_file_in_dynamo
+from utility.dynamo_resources import find_resource_by_path, insert_resource_in_dynamo
 from utility.s3_resources import update_s3_key
 from utility.utils import create_response
 
@@ -73,14 +73,14 @@ def edit_item(level, first, path, name, new_name, time, user):
 
     for i, item in enumerate(old_directory['items']):
         # dynamodb
-        file = find_file_by_path(item)
+        file = find_resource_by_path(item)
         if file is None:
             return create_response(400, {'data': json.dumps('Invalid request body')})
         file = file[0]
         file['path'] = make_path(path, level, new_name)
         file['timeModified'] = time
         file['resource_id'] = file['resource_id'].replace(name, new_name)
-        insert_file_in_dynamo(file)
+        insert_resource_in_dynamo(file)
 
         # S3
         update_s3_key(item, make_path(item, level, new_name))

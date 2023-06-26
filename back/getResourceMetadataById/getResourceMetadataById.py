@@ -10,7 +10,7 @@ import sys
 import datetime
 import math
 
-from utility.dynamo_resources import find_file_by_path, check_parent
+from utility.dynamo_resources import find_resource_by_path, check_parent
 from utility.utils import create_response
 
 table_name = os.environ['RESOURCES_TABLE_NAME']
@@ -18,7 +18,7 @@ bucket_name = os.environ['RESOURCES_BUCKET_NAME']
 
 def getResourceMetadataById(event, context):
     path=event["queryStringParameters"]["path"]
-    file = find_file_by_path(path)
+    file = find_resource_by_path(path)
     if file is None:
         body = {
             'data': json.dumps('There is no such record!')

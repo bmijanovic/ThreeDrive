@@ -6,13 +6,13 @@ from utility.dynamo_directory import find_directory_by_path
 table_name_resources = os.environ['RESOURCES_TABLE_NAME']
 
 
-def insert_file_in_dynamo(new_resource):
+def insert_resource_in_dynamo(new_resource):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name_resources)
     table.put_item(Item=new_resource)
 
 
-def find_file_by_path(path):
+def find_resource_by_path(path):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name_resources)
     response = table.scan(
@@ -38,7 +38,7 @@ def check_parent(user, path):
         return False
 
     if "." in path:
-        content = find_file_by_path(path)[0]
+        content = find_resource_by_path(path)[0]
     else:
         content = find_directory_by_path(path)[0]
     print(content['share'])

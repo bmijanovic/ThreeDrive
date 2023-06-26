@@ -1,7 +1,7 @@
 import json
 
 from utility.dynamo_directory import find_directory_by_path
-from utility.dynamo_resources import find_file_by_path, check_parent
+from utility.dynamo_resources import find_resource_by_path, check_parent
 from utility.utils import create_response
 
 
