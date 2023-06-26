@@ -37,6 +37,36 @@ class Resource {
     }
   }
 
+  static Future<String> edit(String name, String image,List<Map<String,String>> tags,String current_path) async
+  {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.put(
+      Uri.parse("${url}resource"),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
+      },
+      body: json.encode(
+        {
+          'name': name,
+          'image': image,
+          'tags':tags,
+          'path':current_path
+        },
+      ),
+    );
+    var res = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return "1";
+    } else {
+      throw StateError(res['body']);
+    }
+  }
+
   static Future<bool> delete(String name, String currentPath) async
   {
     bool trustSelfSigned = true;
