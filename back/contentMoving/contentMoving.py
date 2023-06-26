@@ -17,7 +17,7 @@ def moving(event, context):
         }
         return create_response(400, body)
 
-    # user = event['requestContext']['authorizer']['username']
+    user = event['requestContext']['authorizer']['username']
     user = None
 
     try:
@@ -44,8 +44,8 @@ def move(path, new_path, user):
 
     content = content[0]
 
-    # if content['owner'] != user:
-    #     raise ValueError("Invalid request body")
+    if content['owner'] != user:
+        raise ValueError("Invalid request body")
 
     update_path_for_resource_in_dynamo(path, new_path)
     new_path = new_path + "/" + content['name'] + '.' + content['extension']
