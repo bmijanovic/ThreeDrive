@@ -1,7 +1,7 @@
 import json
 
 from utility.dynamo_directory import find_directory_by_path
-from utility.dynamo_resources import find_file_by_path, update_path_for_resource_in_dynamo
+from utility.dynamo_resources import update_path_for_resource_in_dynamo, find_resource_by_path
 from utility.s3_resources import update_s3_key
 from utility.utils import create_response
 
@@ -35,7 +35,7 @@ def moving(event, context):
 
 def move(path, new_path, user):
     if "." in path:
-        content = find_file_by_path(path)
+        content = find_resource_by_path(path)
     else:
         raise ValueError("Directory cannot be moved")
 
