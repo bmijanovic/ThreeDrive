@@ -21,10 +21,8 @@ class EditFileScreenState extends State<EditFileScreen>{
   final List<String> _keyList = [];
   final List<String> _valueList = [];
   File? file;
-  Future<dynamic>? element;
   String current_path;
   EditFileScreenState(this.current_path){
-    element= Resource.getResource(current_path);
     getData();
   }
   List<String> reservedWords=["extension","mime","name","id","owner","share","size","timeModified","timeUploaded","resource_id"];
@@ -35,12 +33,22 @@ class EditFileScreenState extends State<EditFileScreen>{
   String keyError="";
   String valueError="";
   String nameError="";
-  getData() async {
-    Future<dynamic> futureInstance = Resource.getResource(this.current_path); // Assuming you have a function that returns a Future<MyClass>
+  Future<dynamic> getData() async {
+    return await  Resource.getResource(this.current_path);
 
-    var myClassInstance = await futureInstance;
-    print(myClassInstance);
   }
+  List<String> keysToRemove = [
+    'owner',
+    'path',
+    'size',
+    'timeUploaded',
+    'timeModified',
+    'mime',
+    'share',
+    'name',
+    'extension',
+    'resource_id'
+  ];
 
   Future<void> _selectFile(BuildContext context) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
@@ -51,249 +59,214 @@ class EditFileScreenState extends State<EditFileScreen>{
     } else {
     }
   }
+  @override
+  void initState() {
+    getData().then((value){
+      print(value['name']);
+      nameController.text=value['name'];
+      for (var entry in value.entries) {
+        if (!keysToRemove.contains(entry.key)) {
+          setState(() {
+            _cardList.add(TagCard(
+              keyTag: entry.key, valueTag: entry.value,));
+          });
+        }
+      }
 
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return
-      FutureBuilder<dynamic>(
-        future: element, // function where you call your api
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {  // AsyncSnapshot<Your object type>
-      if( snapshot.connectionState == ConnectionState.waiting){
-        return Scaffold(
-          body: Center(
-            child: Container(
-                width: 200,
-                height: 200,
-                alignment: Alignment.center,
+    return Scaffold(
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "Add your file",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(
+                height: 50.0,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 50.0, right: 50.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(
-                      color: Colors.blueAccent,semanticsLabel: "Loading",
+                    Focus(
+                        onFocusChange: ((value) {
+                          if (value) {
+                          } else {
+                            if (nameController.text == "") {
+                              nameError = "Value is empty";
+                              setState(() {});
+                            } else {
+                              nameError = "";
+                              setState(() {});
+                            }
+                          }
+                        }),
+                        child: TextField(
+                          controller: nameController,
+                          keyboardType: TextInputType.text,
+                          obscureText: false,
+                          style: Theme.of(context).textTheme.bodyText1,
+                          decoration: InputDecoration(
+                            labelText: "Name*",
+                            errorText: (nameError == "") ? null : nameError,
+                            border: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10.0),
+                              ),
+                            ),
+                          ),
+                        )),
+                    SizedBox(height: 10),
+                    const Divider(
+                      height: 20,
+                      thickness: 3,
+                      indent: 0,
+                      endIndent: 0,
+                      color: Colors.blueAccent,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top:8.0),
-                      child: Text("Loading",style: Theme.of(context).textTheme.labelMedium,),
-                    )
-                  ],
-                )),
-          ),
-        );
-      }else{
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          return Scaffold(
-            body: Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Add your file",
-                      style: Theme.of(context).textTheme.titleMedium,
+                    SizedBox(height: 30),
+                    Focus(
+                        onFocusChange: ((value) {
+                          if (value) {
+                          } else {
+                            if (tagKeyController.text == "" ||
+                                reservedWords.contains(tagKeyController.text)) {
+                              keyError = "Value is empty or use reserved word";
+                              setState(() {});
+                            } else if (_keyList
+                                .contains(tagKeyController.text)) {
+                              keyError = "Key already exists";
+                              setState(() {});
+                            } else {
+                              keyError = "";
+                              setState(() {});
+                            }
+                          }
+                        }),
+                        child: TextField(
+                          controller: tagKeyController,
+                          keyboardType: TextInputType.text,
+                          obscureText: false,
+                          style: Theme.of(context).textTheme.bodyText1,
+                          decoration: InputDecoration(
+                            labelText: "Tag key*",
+                            errorText: (keyError == "") ? null : keyError,
+                            border: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10.0),
+                              ),
+                            ),
+                          ),
+                        )),
+                    SizedBox(height: 20),
+                    Focus(
+                        onFocusChange: ((value) {
+                          if (value) {
+                          } else {
+                            if (tagValueController.text == "") {
+                              valueError =
+                                  "Value is empty or use reserved word";
+                              setState(() {});
+                            } else {
+                              valueError = "";
+                              setState(() {});
+                            }
+                          }
+                        }),
+                        child: TextField(
+                          controller: tagValueController,
+                          keyboardType: TextInputType.text,
+                          obscureText: false,
+                          style: Theme.of(context).textTheme.bodyText1,
+                          decoration: InputDecoration(
+                            labelText: "Tag value*",
+                            errorText: (valueError == "") ? null : valueError,
+                            border: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10.0),
+                              ),
+                            ),
+                          ),
+                        )),
+                    SizedBox(height: 20),
+                    IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          addDynamic();
+                        }),
+                    Row(
+                      children: const [
+                        Expanded(
+                          flex: 1,
+                          child: SizedBox(
+                            width: 10.0,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(
-                      height: 50.0,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 50.0, right: 50.0),
+                    ListView.builder(
+                        itemCount: _cardList.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return Dismissible(
+                              key: UniqueKey(),
 
-                      child: Column(
-                        children: [
-                          Focus(
-                              onFocusChange: ((value) {
-                                if(value){
-                                }else{
-                                  if (nameController.text == ""){
-                                    nameError="Value is empty";
-                                    setState(() {});
-                                  }
-                                  else{
-                                    nameError="";
-                                    setState(() {
-                                    });
-                                  }
-                                }
-                              }),
-                              child:TextField(
-                                controller: nameController,
-                                keyboardType: TextInputType.text,
-                                obscureText: false,
-                                style: Theme.of(context).textTheme.bodyText1,
-                                decoration: InputDecoration(
-                                  labelText: "Name*",
-                                  errorText: (nameError=="")?null:nameError,
-                                  border: const OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                              )
+                              // only allows the user swipe from right to left
+                              direction: DismissDirection.endToStart,
 
-                          ),
+                              // Remove this product from the list
+                              // In production enviroment, you may want to send some request to delete it on server side
+                              onDismissed: (_) {
+                                setState(() {
+                                  _cardList.removeAt(index);
+                                  _keyList.removeAt(index);
+                                  _valueList.removeAt(index);
+                                });
+                              },
 
-                          SizedBox(height: 10),
-                          const Divider(
-                            height: 20,
-                            thickness: 3,
-                            indent: 0,
-                            endIndent: 0,
-                            color: Colors.blueAccent,
-                          ),
-                          SizedBox(height: 30),
-
-                          Focus(
-                              onFocusChange: ((value) {
-                                if(value){
-                                }else{
-                                  if (tagKeyController.text == ""|| reservedWords.contains(tagKeyController.text) ){
-                                    keyError="Value is empty or use reserved word";
-                                    setState(() {});
-                                  }
-                                  else if (_keyList.contains(tagKeyController.text)) {
-                                    keyError="Key already exists";
-                                    setState(() {});
-                                  }
-                                  else{
-                                    keyError="";
-                                    setState(() {
-                                    });
-                                  }
-                                }
-                              }),
-                              child:TextField(
-                                controller: tagKeyController,
-                                keyboardType: TextInputType.text,
-                                obscureText: false,
-                                style: Theme.of(context).textTheme.bodyText1,
-                                decoration: InputDecoration(
-                                  labelText: "Tag key*",
-                                  errorText: (keyError=="")?null:keyError,
-                                  border: const OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                              )
-
-                          ),
-                          SizedBox(height: 20),
-                          Focus(
-                              onFocusChange: ((value) {
-                                if(value){
-                                }else{
-                                  if (tagValueController.text == ""){
-                                    valueError="Value is empty or use reserved word";
-                                    setState(() {});
-                                  }
-                                  else{
-                                    valueError="";
-                                    setState(() {
-                                    });
-                                  }
-                                }
-                              }),
-                              child:TextField(
-                                controller: tagValueController,
-                                keyboardType: TextInputType.text,
-                                obscureText: false,
-                                style: Theme.of(context).textTheme.bodyText1,
-                                decoration: InputDecoration(
-                                  labelText: "Tag value*",
-                                  errorText: (valueError=="")?null:valueError,
-                                  border: const OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10.0),
-                                    ),
-                                  ),
-                                ),
-                              )
-
-                          ),
-                          SizedBox(height: 20),
-                          IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: () {addDynamic();}),
-                          Row(
-                            children: const [
-                              Expanded(
-                                flex: 1,
-                                child: SizedBox(
-                                  width: 10.0,
+                              // This will show up when the user performs dismissal action
+                              // It is a red background and a trash icon
+                              background: Container(
+                                color: Colors.red,
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 15),
+                                alignment: Alignment.centerRight,
+                                child: const Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
                                 ),
                               ),
-                            ],
-                          ),
-                          ListView.builder(
-                              itemCount: _cardList.length,
-                              shrinkWrap: true,
-                              itemBuilder: (context,index){
 
-                                return Dismissible(
-                                    key: UniqueKey(),
-
-                                    // only allows the user swipe from right to left
-                                    direction: DismissDirection.endToStart,
-
-                                    // Remove this product from the list
-                                    // In production enviroment, you may want to send some request to delete it on server side
-                                    onDismissed: (_) {
-                                      setState(() {
-                                        _cardList.removeAt(index);
-                                        _keyList.removeAt(index);
-                                        _valueList.removeAt(index);
-                                      });
-                                    },
-
-                                    // This will show up when the user performs dismissal action
-                                    // It is a red background and a trash icon
-                                    background: Container(
-                                      color: Colors.red,
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 15),
-                                      alignment: Alignment.centerRight,
-                                      child: const Icon(
-                                        Icons.delete,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-
-                                    // Display item's title, price...
-                                    child: _cardList[index]
-                                );
-                              }),
-                          const SizedBox(
-                            height: 20.0,
-                          ),
-                          ElevatedButton(
-                            onPressed: (() => {
-                              _selectFile(context)
-                            }),
-                            child: const Text("Change file"),
-                          ),
-                          ElevatedButton(
-                            onPressed: (() => upload()),
-                            child: const Text("Upload"),
-                          ),
-
-                        ],
-                      ),
-
+                              // Display item's title, price...
+                              child: _cardList[index]);
+                        }),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    ElevatedButton(
+                      onPressed: (() => {_selectFile(context)}),
+                      child: const Text("Change file"),
+                    ),
+                    ElevatedButton(
+                      onPressed: (() => upload()),
+                      child: const Text("Upload"),
                     ),
                   ],
                 ),
               ),
-            ),
-          );
-        }}});
-
-
-
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   upload() async {

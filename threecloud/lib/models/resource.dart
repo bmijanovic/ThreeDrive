@@ -217,7 +217,30 @@ class Resource {
       throw StateError(res['data']);
     }
   }
+  static Future<dynamic> getSharedResource() async
+  {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.get(
+      Uri.parse(
+          "${url}sharedContent"),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
+      },
+    );
+    var res = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return res;
+    } else {
+      throw StateError(res['body']);
+    }
+  }
 }
+
 
 
 class DirectoryDTO{
