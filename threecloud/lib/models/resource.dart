@@ -217,6 +217,34 @@ class Resource {
       throw StateError(res['data']);
     }
   }
+
+  static Future<bool> move(String content, String currentPath)
+  async {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.post(
+      Uri.parse("${url}move"),
+      headers: {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
+    },
+      body: json.encode(
+        {
+          'path': content,
+          'new_path': currentPath
+        },
+      ),
+    );
+    var res = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw StateError(res['data']);
+    }
+  }
 }
 
 

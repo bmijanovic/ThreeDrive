@@ -13,6 +13,8 @@ import 'content_sharing_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 
+import 'directory_picker_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   final String currentPath;
 
@@ -206,6 +208,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                             TextButton(
                                               onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          DirectoryPickerScreen(
+                                                            currentPath: '',
+                                                            content: i,
+                                                          )),
+                                                ).then((value) =>
+                                                    Navigator.pop(context));
+                                              },
+                                              child: const Text('Move'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
                                                 Resource.delete(i, currentPath)
                                                     .whenComplete(
                                                         () => getResources());
@@ -265,6 +282,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               },
                                               child: const Text('Download'),
                                             ),
+
+
                                             TextButton(
                                               onPressed: () {
                                                 Navigator.pop(context);
