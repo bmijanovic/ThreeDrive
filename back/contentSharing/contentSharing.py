@@ -46,6 +46,7 @@ def share_content(user, path, type, username, action):
         raise ValueError("This user does not exist")
 
     content = None
+
     if type == 'DIRECTORY':
         content = find_directory_by_path(path)
     elif type == 'RESOURCE':

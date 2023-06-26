@@ -278,6 +278,21 @@ functions:
             resultTtlInSeconds: 0
             type: token
 
+  contentMoving:
+    handler: contentMoving/contentMoving.moving
+    package:
+      include:
+        - 'contentMoving/**'
+    events:
+      - http:
+          path: move
+          method: post
+          cors: true
+#          authorizer:
+#            name: authorize
+#            resultTtlInSeconds: 0
+#            type: token
+
 resources:
   Resources:
     usersTable:
