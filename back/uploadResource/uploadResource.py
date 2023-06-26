@@ -7,7 +7,7 @@ import sys
 import datetime
 
 from utility.dynamo_directory import find_directory_by_path, insert_directory_in_dynamo
-from utility.dynamo_resources import find_file_by_path
+from utility.dynamo_resources import find_resource_by_path, insert_resource_in_dynamo
 from utility.s3_resources import insert_resource_in_s3
 from utility.utils import create_response
 
@@ -41,7 +41,7 @@ def upload(event, context):
         fileName += "." + ext
         fileKey += "." + ext
 
-    if find_file_by_path(fileKey):
+    if find_resource_by_path(fileKey):
         body = {
             'data': json.dumps('File Already Exist')
         }
@@ -83,11 +83,5 @@ def upload(event, context):
     #     'statusCode': 200,
     #     'body': "File Uploaded"
     # }
-
-
-def insert_resource_in_dynamo(resource_item):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    table.put_item(Item=resource_item)
 
 

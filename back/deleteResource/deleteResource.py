@@ -3,7 +3,7 @@ import os
 import boto3
 
 from utility.dynamo_directory import find_directory_by_path
-from utility.dynamo_resources import find_file_by_path, delete_resource_from_dynamo
+from utility.dynamo_resources import find_resource_by_path, delete_resource_from_dynamo
 from utility.s3_resources import delete_resource_from_s3
 from utility.utils import create_response
 
@@ -15,7 +15,7 @@ def delete(event, context):
     try:
         path = event["queryStringParameters"]["path"]
 
-        resource = find_file_by_path(path)
+        resource = find_resource_by_path(path)
         if resource is None:
             return create_response(400, {'data': json.dumps('Resource does not exist')})
         resource = resource[0]

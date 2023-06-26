@@ -1,7 +1,7 @@
 import json
 
 from utility.dynamo_directory import find_directory_by_path
-from utility.dynamo_resources import find_file_by_path
+from utility.dynamo_resources import find_resource_by_path
 from utility.utils import create_response
 
 
@@ -24,7 +24,7 @@ def get_list(event, context):
         if type == 'DIRECTORY':
             content = find_directory_by_path(path)
         elif type == 'RESOURCE':
-            content = find_file_by_path(path)
+            content = find_resource_by_path(path)
         else:
             raise ValueError("Wrong type")
 

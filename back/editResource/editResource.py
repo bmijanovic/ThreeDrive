@@ -9,7 +9,7 @@ import filetype
 
 from utility.dynamo_directory import find_directory_by_path_and_name, find_directory_by_path, \
     insert_directory_in_dynamo, delete_directory_from_dynamo
-from utility.dynamo_resources import find_file_by_path, insert_file_in_dynamo, delete_resource_from_dynamo
+from utility.dynamo_resources import find_resource_by_path, insert_resource_in_dynamo, delete_resource_from_dynamo
 from utility.s3_resources import update_s3_key, delete_resource_from_s3, insert_resource_in_s3
 from utility.utils import create_response
 
@@ -31,7 +31,7 @@ def editResource(event, context):
         }
         return create_response(400, body)
 
-    file = find_file_by_path(path)
+    file = find_resource_by_path(path)
     if len(file) == 0:
         return create_response(400, {'data': json.dumps('Invalid request bodyY')})
     file=file[0]
@@ -48,7 +48,7 @@ def editResource(event, context):
             else:
                 ext=""
 
-        existing_file = find_file_by_path(path.rsplit('/', 1)[0] + "/" + name + ext)
+        existing_file = find_resource_by_path(path.rsplit('/', 1)[0] + "/" + name + ext)
         if len(existing_file) > 0:
             return create_response(400, {'data': json.dumps('File with same name exist in folder')})
 
@@ -78,7 +78,7 @@ def editResource(event, context):
         file_bytes = bytes(file_b64dec)
         insert_resource_in_s3(path, file_bytes)
 
-    insert_file_in_dynamo(file)
+    insert_resource_in_dynamo(file)
 
     body = {
         'data': json.dumps('File edited')
