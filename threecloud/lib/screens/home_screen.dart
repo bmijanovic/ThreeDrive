@@ -15,6 +15,8 @@ import 'content_sharing_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 
+import 'directory_picker_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   final String currentPath;
 
@@ -323,6 +325,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       Navigator.pop(context);
                                                     },
                                                     child: const Text('Delete'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => DirectoryPickerScreen(
+                                                            currentPath: "",
+                                                            content: i,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: const Text('Move'),
                                                   ),
                                                   TextButton(
                                                     onPressed: () {
