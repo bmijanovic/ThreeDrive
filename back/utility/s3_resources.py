@@ -17,6 +17,7 @@ def insert_resource_in_s3(fileKey, fileBytes):
     s3 = boto3.client('s3')
     s3.put_object(Bucket=bucket_name_resources, Key=f'{fileKey}', Body=fileBytes)
 
+
 def update_s3_key(old_key, new_key):
     s3 = boto3.client('s3')
 
@@ -39,6 +40,7 @@ def update_s3_key(old_key, new_key):
 def delete_resource_from_s3(path):
     s3 = boto3.client('s3')
     s3.delete_object(Bucket=bucket_name_resources, Key=f'{path}')
+
 
 def get_resource_from_s3(path):
     s3 = boto3.client('s3')
