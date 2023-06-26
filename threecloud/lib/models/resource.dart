@@ -262,7 +262,20 @@ class Resource {
     );
     var res = jsonDecode(response.body);
     if (response.statusCode == 200) {
-        return res;
+      List<dynamic> directories=[];
+      List<dynamic> resources = [];
+      if (res['directories'] != null) {
+        if (res['directories'].length > 0) {
+          directories.addAll(res['directories']);
+        }
+      }
+      if (res['resources'] != null) {
+        if (res['resources'].length>0) {
+          resources.addAll(res['resources']);
+        }
+      }
+      DirectoryDTO returnValue= DirectoryDTO((directories)?.map((item) => item as String)?.toList(),(resources)?.map((item) => item as String)?.toList());
+      return returnValue ;
     } else {
         throw StateError(res['body']);
     }

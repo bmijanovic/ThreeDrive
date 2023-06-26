@@ -32,10 +32,43 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isOpening = false;
   var lifecycleEventHandler;
   String currentPath;
+  String title = "";
+  List<String> currentPathShared = ["shared"];
+  final List<Tab> myTabs = <Tab>[
+    const Tab(
+      text: "Home",
+      icon: Icon(Icons.home_filled),
+    ),
+    const Tab(
+      text: "Shared",
+      icon: Icon(Icons.share),
+    ),
+    const Tab(
+      text: "Family",
+      icon: Icon(Icons.group),
+    ),
+    const Tab(
+      text: "Logout",
+      icon: Icon(Icons.logout),
+    ),
+  ];
+  int _activeIndex = 0;
 
   _HomeScreenState(this.currentPath) {
+    title = currentPath;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
     getResources();
     getSharedResources();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   getResources() async {
@@ -44,7 +77,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getSharedResources() async {
-    elementsShared = Resource.getSharedResource();
+    if (currentPathShared.length == 1) {
+      elementsShared = Resource.getSharedResource();
+    } else {
+      elementsShared = Resource.getMyResources(currentPathShared.last);
+    }
+
     setState(() {});
   }
 
@@ -53,19 +91,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return WillPopScope(
         onWillPop: _onWillPop,
         child: MaterialApp(
-        home: DefaultTabController(
-            length: 4,
-            child: Scaffold(
-                appBar: AppBar(
-                  title: Text(currentPath),
-                  elevation: 0.0,
-                  iconTheme: IconThemeData(
-                      color: Colors.black,
-                      size: 30
-                  ),),
-                bottomNavigationBar: menu(),
-                body: TabBarView(
-                    children: [
+            home: DefaultTabController(
+                length: 4,
+                child: Scaffold(
+                    appBar: AppBar(
+                        title: Text(title),
+                        elevation: 0.0,
+                        iconTheme: IconThemeData(color: Colors.black, size: 30),
+                        leading: shouldShowBack()),
+                    bottomNavigationBar: menu(),
+                    body: TabBarView(children: [
                       Container(child: home()),
                       Container(child: shared()),
                       Container(child: Icon(Icons.directions_bike)),
@@ -99,78 +134,125 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<bool> _onWillPop() async {
-    if (currentPath.contains("/")){
-      setState(() {
-        List<String> folders = currentPath.split('/');
-        folders.removeLast();
-        currentPath=folders.join('/');
-        getResources();
-      });
-      return false;
-    }
-    else {
+    if (_activeIndex == 0) {
+      if (currentPath.contains("/")) {
+        setState(() {
+          List<String> folders = currentPath.split('/');
+          folders.removeLast();
+          currentPath = folders.join('/');
+          updateTitle(0);
+          getResources();
+        });
+        return false;
+      } else {
+        return (await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Are you sure?'),
+                content: const Text('Do you want to exit an App'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('No'),
+                  ),
+                  TextButton(
+                    onPressed: () => exit(0),
+                    child: const Text('Yes'),
+                  ),
+                ],
+              ),
+            )) ??
+            false;
+      }
+    } else if (_activeIndex == 1) {
+      if (currentPathShared.length > 1) {
+        setState(() {
+          currentPathShared.removeLast();
+          updateTitle(1);
+          getSharedResources();
+        });
+        return false;
+      } else {
+        return (await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Are you sure?'),
+                content: const Text('Do you want to exit an App'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('No'),
+                  ),
+                  TextButton(
+                    onPressed: () => exit(0),
+                    child: const Text('Yes'),
+                  ),
+                ],
+              ),
+            )) ??
+            false;
+      }
+    } else {
       return (await showDialog(
-        context: context,
-        builder: (context) =>
-        new AlertDialog(
-          title: new Text('Are you sure?'),
-          content: new Text('Do you want to exit an App'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: new Text('No'),
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Are you sure?'),
+              content: const Text('Do you want to exit an App'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('No'),
+                ),
+                TextButton(
+                  onPressed: () => exit(0),
+                  child: const Text('Yes'),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () => exit(0),
-              child: new Text('Yes'),
-            ),
-          ],
-        ),
-      )) ?? false;
+          )) ??
+          false;
     }
   }
 
   Widget home() {
     return FutureBuilder<dynamic>(
         future: elements, // function where you call your api
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot)
-    {
-      // AsyncSnapshot<Your object type>
-      if (snapshot.connectionState == ConnectionState.waiting || isOpening) {
-        return Scaffold(
-          body: Center(
-            child: Container(
-                width: 200,
-                height: 200,
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      color: Colors.blueAccent, semanticsLabel: "Loading",
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text("Loading", style: Theme
-                          .of(context)
-                          .textTheme
-                          .labelMedium,),
-                    )
-                  ],
-                )),
-          ),
-        );
-      } else {
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          return Scaffold(
-              body: Scaffold(
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          // AsyncSnapshot<Your object type>
+          if (snapshot.connectionState == ConnectionState.waiting ||
+              isOpening) {
+            return Scaffold(
+              body: Center(
+                child: Container(
+                    width: 200,
+                    height: 200,
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          color: Colors.blueAccent,
+                          semanticsLabel: "Loading",
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            "Loading",
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                        )
+                      ],
+                    )),
+              ),
+            );
+          } else {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              return Scaffold(
+                  body: Scaffold(
                 body: GridView.count(
-                  // Create a grid with 2 columns. If you change the scrollDirection to
-                  // horizontal, this produces 2 rows.
                     crossAxisCount: 2,
-                    // Generate 100 widgets that display their index in the List.
                     padding: const EdgeInsets.all(8.0),
                     children: [
                       if (snapshot.hasData)
@@ -178,85 +260,77 @@ class _HomeScreenState extends State<HomeScreen> {
                           GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  currentPath=i;
-                                  elements=Resource.getMyResources(currentPath);
+                                  currentPath = i;
+                                  updateTitle(_activeIndex);
+                                  elements =
+                                      Resource.getMyResources(currentPath);
                                 });
                               },
-                              onLongPress: () =>
-                                  showDialog<String>(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          Dialog(
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(
-                                                  8.0),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment:
+                              onLongPress: () => showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) => Dialog(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
                                                 MainAxisAlignment.center,
-                                                children: <Widget>[
-                                                  const Text('Actions'),
-                                                  const SizedBox(height: 15),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text('Edit'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      deleteFolder(i)
-                                                          .whenComplete(
-                                                              () =>
-                                                              getResources());
-                                                      ;
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text('Delete'),
-                                                  ),
-                                                  TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (
-                                                                  context) =>
-                                                                  ContentSharingScreen(
-                                                                    action:
-                                                                    "DIRECTORY",
-                                                                    path: i,
-                                                                  )),
-                                                        ).then((value) => this);
-                                                      },
-                                                      child: const Text(
-                                                          'Share')),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text('Close'),
-                                                  ),
-                                                ],
+                                            children: <Widget>[
+                                              const Text('Actions'),
+                                              const SizedBox(height: 15),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Edit'),
                                               ),
-                                            ),
-                                          )),
+                                              TextButton(
+                                                onPressed: () {
+                                                  deleteFolder(i).whenComplete(
+                                                      () => getResources());
+                                                  ;
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Delete'),
+                                              ),
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ContentSharingScreen(
+                                                                action:
+                                                                    "DIRECTORY",
+                                                                path: i,
+                                                              )),
+                                                    ).then((value) => this);
+                                                  },
+                                                  child: const Text('Share')),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Close'),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      )),
                               child: Column(children: [
                                 const Expanded(
                                     child: Icon(
-                                      IconData(
-                                        0xE02F,
-                                        fontFamily: 'Seti',
-                                        fontPackage: 'file_icon',
-                                      ),
-                                      color: Colors.amber,
-                                      size: 70,
-                                    )),
+                                  IconData(
+                                    0xE02F,
+                                    fontFamily: 'Seti',
+                                    fontPackage: 'file_icon',
+                                  ),
+                                  color: Colors.amber,
+                                  size: 70,
+                                )),
                                 const SizedBox(height: 10),
-                                Text("${i
-                                    .toString()
-                                    .split("/")
-                                    .last}",
+                                Text("${i.toString().split("/").last}",
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,
@@ -270,8 +344,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 setState(() {
                                   isOpening = true;
                                 });
-                                String dir = (await getTemporaryDirectory())
-                                    .path;
+                                String dir =
+                                    (await getTemporaryDirectory()).path;
                                 Resource.downloadResource(i, downloadPath: dir)
                                     .whenComplete(() {
                                   setState(() {
@@ -279,22 +353,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                   });
                                   OpenFilex.open(dir +
                                       "/" +
-                                      (i.split("/")[i
-                                          .split("/")
-                                          .length - 1]));
+                                      (i.split("/")[i.split("/").length - 1]));
                                 });
                               },
-                              onLongPress: () =>
-                                  showDialog<String>(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          Dialog(
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(
-                                                  8.0),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment:
+                              onLongPress: () => showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) => Dialog(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                                 children: <Widget>[
                                                   const Text('Actions'),
@@ -407,19 +476,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                                 ],
                                               ),
-                                            ),
-                                          )),
+
+                                        ),
+                                      )),
                               child: Column(children: [
                                 Expanded(
                                     child: FileIcon(
-                                      i,
-                                      size: 70,
-                                    )),
+                                  i,
+                                  size: 70,
+                                )),
                                 const SizedBox(height: 10),
-                                Text("${i
-                                    .toString()
-                                    .split("/")
-                                    .last}",
+                                Text("${i.toString().split("/").last}",
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,
@@ -430,18 +497,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 floatingActionButton: FloatingButton(
                     currentPath: currentPath + "/", homeScreen: getResources),
               ));
-        }
-      }
-    });
+            }
+          }
+        });
   }
 
   Widget shared() {
     return FutureBuilder<dynamic>(
         future: elementsShared, // function where you call your api
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot)
-        {
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           // AsyncSnapshot<Your object type>
-          if (snapshot.connectionState == ConnectionState.waiting || isOpening) {
+          if (snapshot.connectionState == ConnectionState.waiting ||
+              isOpening) {
             return Scaffold(
               body: Center(
                 child: Container(
@@ -452,14 +519,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CircularProgressIndicator(
-                          color: Colors.blueAccent, semanticsLabel: "Loading",
+                          color: Colors.blueAccent,
+                          semanticsLabel: "Loading",
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
-                          child: Text("Loading", style: Theme
-                              .of(context)
-                              .textTheme
-                              .labelMedium,),
+                          child: Text(
+                            "Loading",
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
                         )
                       ],
                     )),
@@ -471,256 +539,190 @@ class _HomeScreenState extends State<HomeScreen> {
             } else {
               return Scaffold(
                   body: Scaffold(
-                    body: GridView.count(
-                      // Create a grid with 2 columns. If you change the scrollDirection to
-                      // horizontal, this produces 2 rows.
-                        crossAxisCount: 2,
-                        // Generate 100 widgets that display their index in the List.
-                        padding: const EdgeInsets.all(8.0),
-                        children: [
-                          if (snapshot.hasData)
-                            for (var i in (snapshot.data!)['directories'])
-                              GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      currentPath=i;
-                                      elements=Resource.getMyResources(currentPath);
-                                    });
-                                  },
-                                  onLongPress: () =>
-                                      showDialog<String>(
-                                          context: context,
-                                          builder: (BuildContext context) =>
-                                              Dialog(
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                      8.0),
-                                                  child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                    children: <Widget>[
-                                                      const Text('Actions'),
-                                                      const SizedBox(height: 15),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(context);
-                                                        },
-                                                        child: const Text('Edit'),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          deleteFolder(i)
-                                                              .whenComplete(
-                                                                  () =>
-                                                                  getResources());
-                                                          ;
-                                                          Navigator.pop(context);
-                                                        },
-                                                        child: const Text('Delete'),
-                                                      ),
-                                                      TextButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(context);
-                                                            Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                  builder: (
-                                                                      context) =>
-                                                                      ContentSharingScreen(
-                                                                        action:
-                                                                        "DIRECTORY",
-                                                                        path: i,
-                                                                      )),
-                                                            ).then((value) => this);
-                                                          },
-                                                          child: const Text(
-                                                              'Share')),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(context);
-                                                        },
-                                                        child: const Text('Close'),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              )),
-                                  child: Column(children: [
-                                    const Expanded(
-                                        child: Icon(
-                                          IconData(
-                                            0xE02F,
-                                            fontFamily: 'Seti',
-                                            fontPackage: 'file_icon',
+                body: GridView.count(
+                    // Create a grid with 2 columns. If you change the scrollDirection to
+                    // horizontal, this produces 2 rows.
+                    crossAxisCount: 2,
+                    // Generate 100 widgets that display their index in the List.
+                    padding: const EdgeInsets.all(8.0),
+                    children: [
+                      if (snapshot.hasData)
+                        for (var i in (snapshot.data!).directories)
+                          GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  currentPathShared.add(i);
+                                  updateTitle(1);
+                                  getSharedResources();
+                                });
+                              },
+                              onLongPress: () => showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) => Dialog(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              const Text('Actions'),
+                                              const SizedBox(height: 15),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Edit'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  deleteFolder(i).whenComplete(
+                                                      () => getResources());
+                                                  ;
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Delete'),
+                                              ),
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ContentSharingScreen(
+                                                                action:
+                                                                    "DIRECTORY",
+                                                                path: i,
+                                                              )),
+                                                    ).then((value) => this);
+                                                  },
+                                                  child: const Text('Share')),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Close'),
+                                              ),
+                                            ],
                                           ),
-                                          color: Colors.amber,
-                                          size: 70,
-                                        )),
-                                    const SizedBox(height: 10),
-                                    Text("${i
-                                        .toString()
-                                        .split("/")
-                                        .last}",
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
-                                        ))
-                                  ])),
-                          if (snapshot.hasData)
-                            for (var i in (snapshot.data!)['resources'])
-                              GestureDetector(
-                                  onTap: () async {
-                                    setState(() {
-                                      isOpening = true;
-                                    });
-                                    String dir = (await getTemporaryDirectory())
-                                        .path;
-                                    Resource.downloadResource(i, downloadPath: dir)
-                                        .whenComplete(() {
-                                      setState(() {
-                                        isOpening = false;
-                                      });
-                                      OpenFilex.open(dir +
-                                          "/" +
-                                          (i.split("/")[i
-                                              .split("/")
-                                              .length - 1]));
-                                    });
-                                  },
-                                  onLongPress: () =>
-                                      showDialog<String>(
-                                          context: context,
-                                          builder: (BuildContext context) =>
-                                              Dialog(
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                      8.0),
-                                                  child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                    children: <Widget>[
-                                                      const Text('Actions'),
-                                                      const SizedBox(height: 15),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder: (
-                                                                    context) =>
-                                                                    EditFileScreen(
-                                                                      current_path: "",
-                                                                    )),
-                                                          ).then((value) =>
-                                                              Navigator.pop(
-                                                                  context));
-                                                        },
-                                                        child: const Text('Edit'),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Resource.delete(
-                                                              i, currentPath)
-                                                              .whenComplete(
-                                                                  () =>
-                                                                  getResources());
-                                                          Navigator.pop(context);
-                                                        },
-                                                        child: const Text('Delete'),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(context);
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder: (
-                                                                    context) =>
-                                                                    FileDetailsScreen(
-                                                                      filePath: i,
-                                                                    )),
-                                                          );
-                                                        },
-                                                        child: const Text(
-                                                            'Details'),
-                                                      ),
-                                                      TextButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(context);
-                                                            Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                  builder: (
-                                                                      context) =>
-                                                                      ContentSharingScreen(
-                                                                          action:
-                                                                          "RESOURCE",
-                                                                          path: i)),
-                                                            ).then((value) => this);
-                                                          },
-                                                          child: const Text(
-                                                              'Share')),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Resource.downloadResource(
-                                                              i)
-                                                              .whenComplete(() =>
-                                                          {
+                                        ),
+                                      )),
+                              child: Column(children: [
+                                const Expanded(
+                                    child: Icon(
+                                  IconData(
+                                    0xE02F,
+                                    fontFamily: 'Seti',
+                                    fontPackage: 'file_icon',
+                                  ),
+                                  color: Colors.amber,
+                                  size: 70,
+                                )),
+                                const SizedBox(height: 10),
+                                Text("${i.toString().split("/").last}",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                    ))
+                              ])),
+                      if (snapshot.hasData)
+                        for (var i in (snapshot.data!).files)
+                          GestureDetector(
+                              onTap: () async {
+                                setState(() {
+                                  isOpening = true;
+                                });
+                                String dir =
+                                    (await getTemporaryDirectory()).path;
+                                Resource.downloadResource(i, downloadPath: dir)
+                                    .whenComplete(() {
+                                  setState(() {
+                                    isOpening = false;
+                                  });
+                                  OpenFilex.open(dir +
+                                      "/" +
+                                      (i.split("/")[i.split("/").length - 1]));
+                                });
+                              },
+                              onLongPress: () => showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) => Dialog(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              const Text('Actions'),
+                                              const SizedBox(height: 15),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            FileDetailsScreen(
+                                                              filePath: i,
+                                                            )),
+                                                  );
+                                                },
+                                                child: const Text('Details'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Resource.downloadResource(i)
+                                                      .whenComplete(() => {
                                                             Fluttertoast.showToast(
                                                                 msg:
-                                                                "File downloaded successfully!",
+                                                                    "File downloaded successfully!",
                                                                 toastLength: Toast
                                                                     .LENGTH_SHORT,
                                                                 gravity:
-                                                                ToastGravity
-                                                                    .CENTER,
+                                                                    ToastGravity
+                                                                        .CENTER,
                                                                 timeInSecForIosWeb:
-                                                                1,
+                                                                    1,
                                                                 backgroundColor:
-                                                                Colors.red,
+                                                                    Colors.red,
                                                                 textColor:
-                                                                Colors.white,
+                                                                    Colors
+                                                                        .white,
                                                                 fontSize: 16.0)
                                                           });
-                                                          Navigator.pop(context);
-                                                        },
-                                                        child: const Text(
-                                                            'Download'),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(context);
-                                                        },
-                                                        child: const Text('Close'),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              )),
-                                  child: Column(children: [
-                                    Expanded(
-                                        child: FileIcon(
-                                          i,
-                                          size: 70,
-                                        )),
-                                    const SizedBox(height: 10),
-                                    Text("${i
-                                        .toString()
-                                        .split("/")
-                                        .last}",
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
-                                        ))
-                                  ]))
-                        ]),
-                    floatingActionButton: FloatingButton(
-                        currentPath: currentPath + "/", homeScreen: getResources),
-                  ));
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Download'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Close'),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      )),
+                              child: Column(children: [
+                                Expanded(
+                                    child: FileIcon(
+                                  i,
+                                  size: 70,
+                                )),
+                                const SizedBox(height: 10),
+                                Text("${i.toString().split("/").last}",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                    ))
+                              ]))
+                    ]),
+              ));
             }
           }
         });
@@ -730,12 +732,36 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       color: Color(0xFF3F5AA6),
       child: TabBar(
+        onTap: (index) {
+          if (index == 0 && _activeIndex == 0) {
+            if (currentPath.contains("/")) {
+              setState(() {
+                currentPath = currentPath.split("/")[0];
+                updateTitle(0);
+                getResources();
+              });
+            }
+          }
+          if (index == 1 && _activeIndex == 1) {
+            if (currentPathShared.length > 1) {
+              setState(() {
+                currentPathShared = ["shared"];
+                updateTitle(0);
+                getSharedResources();
+              });
+            }
+          }
+          _activeIndex = index;
+          setState(() {
+            updateTitle(index);
+          });
+        },
         labelColor: Colors.white,
         unselectedLabelColor: Colors.white70,
         indicatorSize: TabBarIndicatorSize.tab,
         indicatorPadding: EdgeInsets.all(5.0),
         indicatorColor: Colors.blue,
-        tabs: [
+        tabs: const [
           Tab(
             text: "Home",
             icon: Icon(Icons.home_filled),
@@ -755,5 +781,48 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  void updateTitle(int index) {
+    switch (_activeIndex) {
+      case 0:
+        {
+          title = currentPath;
+        }
+        break;
+      case 1:
+        {
+          List<String> name = [];
+          for (var item in currentPathShared) {
+            name.add(item.split("/").last);
+          }
+          title = name.join('/');
+        }
+        break;
+      case 2:
+        {
+          title = "Invite Family Member";
+        }
+        break;
+    }
+  }
+
+  shouldShowBack() {
+    if ((_activeIndex == 0 && currentPath.contains("/")) ||
+        (_activeIndex == 1 && currentPathShared.length > 1)) {
+      return InkWell(
+        onTap: () async {
+          if (await _onWillPop()) {
+            Navigator.of(context).pop(true);
+          }
+        },
+        child: Icon(
+          Icons.arrow_back,
+          color: Colors.white,
+        ),
+      );
+    } else {
+      return InkWell();
+    }
   }
 }
