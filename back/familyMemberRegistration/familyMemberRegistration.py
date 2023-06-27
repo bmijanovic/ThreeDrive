@@ -1,20 +1,15 @@
-import datetime
 import json
-import os
-import time
-
-import boto3
-import uuid
 import re
+import uuid
+from datetime import datetime
 from hashlib import sha256
 
+from registration.registration import insert_user_in_dynamo
 from utility.dynamo_directory import insert_directory_in_dynamo
-from utility.dynamo_users import find_user_by_username
+from utility.dynamo_invitations import check_invitation_in_dynamo
+from utility.dynamo_users import find_user_by_username, find_user_by_email
 from utility.utils import create_response
-
-table_name = os.environ['USERS_TABLE_NAME']
-table_name_dir = os.environ['DIRECTORIES_TABLE_NAME']
-
+from dateutil.parser import parse
 
 
 def registration(event, context):
@@ -26,14 +21,16 @@ def registration(event, context):
         birthdate = body['birthdate']
         name = body['name']
         surname = body['surname']
+        inviter = body['inviter']
     except (KeyError, json.decoder.JSONDecodeError):
         body = {
             'data': json.dumps('Invalid request body')
         }
         return create_response(400, body)
 
-
     try:
+        if not check_invitation_in_dynamo(inviter, email):
+            raise ValueError("User is not invited by this user")
         register(username, password, email, birthdate, name, surname)
         body = {
             'data': json.dumps('User registration successful')
@@ -97,26 +94,9 @@ def does_user_exist(username, email):
         return True
     return False
 
-def find_user_by_email(email):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    response = table.scan(
-        FilterExpression="email = :email",
-        ExpressionAttributeValues={
-            ":email": email
-        }
-    )
-    return response['Items']
-
-
-def insert_user_in_dynamo(user_item):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(table_name)
-    table.put_item(Item=user_item)
-
 
 def make_user_home_directory(username):
-    time = datetime.datetime.now().time()
+    time = datetime.now().time()
     new_directory = {
         'path': username,
         'name': username,
