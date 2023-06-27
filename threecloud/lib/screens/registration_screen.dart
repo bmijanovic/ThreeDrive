@@ -25,7 +25,7 @@ class RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController birthdateController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController passwordRepeatController = TextEditingController();
-  final TextEditingController referralUsername = TextEditingController();
+  final TextEditingController referralUsernameController = TextEditingController();
 
 
   @override
@@ -103,14 +103,14 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                       ),
                     ),
                     if (isChecked)
-                    BigTextField(referralUsername, TextInputType.name, "Referral username*", false),
+                    BigTextField(referralUsernameController, TextInputType.name, "Referral username*", false),
 
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ElevatedButton(
                         onPressed: (() {
                           if (isChecked){
-                            //TODO Register referral
+                            createAccountWithInvite(context);
                           }else{
                             createAccount(context);
                           }
@@ -154,6 +154,19 @@ class RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
+  createAccountWithInvite(BuildContext context) async {
+    if (!areInputsValid(context)) return;
+    try
+    {
+      String id = await User.registerWithInvite(nameController.text, surnameController.text, emailController.text, passwordController.text, birthdateController.text, usernameController.text,referralUsernameController.text);
+      await remeberThatUserLogedIn(id);
+      // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CreditCardScreen()));
+    } on StateError catch (error)
+    {
+      showError(context, error.message);
+    }
+  }
+
   remeberThatUserLogedIn(String id) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool("loggedIn", true);
@@ -165,7 +178,7 @@ class RegistrationScreenState extends State<RegistrationScreen> {
         surnameController.text == "" ||
         emailController.text == "" ||
         passwordController.text == "" ||
-        passwordController.text == "" || (isChecked && referralUsername.text=="")) {
+        passwordController.text == "" || (isChecked && referralUsernameController.text=="")) {
       showError(context, "Invalid input values");
       return false;
     }

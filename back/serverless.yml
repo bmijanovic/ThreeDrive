@@ -400,11 +400,11 @@ functions:
       include:
         - 'familyMemberRegistration/**'
 
-  familyRegistrationNotifyInviter:
-    handler: familyRegistrationNotifyInviter/familyRegistrationNotifyInviter.family_registration_notify_inviter
+  familyMemberNotifyInviter:
+    handler: familyMemberNotifyInviter/familyMemberNotifyInviter.family_registration_notify_inviter
     package:
       include:
-        - 'familyRegistrationNotifyInviter/**'
+        - 'familyMemberNotifyInviter/**'
 
   familyMemberCheckApproval:
     handler: familyMemberCheckApproval/familyMemberCheckApproval.family_member_check_approval
@@ -437,7 +437,7 @@ stepFunctions:
         States:
           familyMemberRegistration:
             Type: Task
-            Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberRegistration"
+            Resource: "arn:aws:lambda:eu-central-1:239804187295:function:three-drive-dev-familyMemberRegistration"
             Next: checkUserValidity
 
 
@@ -451,13 +451,13 @@ stepFunctions:
 
           familyRegistrationNotifyInviter:
             Type: Task
-            Resource: "arn:aws:lambda:eu-central-1:*:function:familyRegistrationNotifyInviter"
+            Resource: "arn:aws:lambda:eu-central-1:239804187295:function:three-drive-dev-familyMemberNotifyInviter"
             Next: checkApproval
 
 
           checkApproval:
             Type: Task
-            Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberCheckApproval"
+            Resource: "arn:aws:lambda:eu-central-1:239804187295:function:three-drive-dev-familyMemberCheckApproval"
             Retry:
               - ErrorEquals:
                   - States.TaskFailed
@@ -476,7 +476,7 @@ stepFunctions:
 
           giveAccess:
             Type: Task
-            Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberGiveAccess"
+            Resource: "arn:aws:lambda:eu-central-1:239804187295:function:three-drive-dev-familyMemberGiveAccess"
             Next: successfullRegistration
 
 

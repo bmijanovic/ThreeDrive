@@ -12,6 +12,7 @@ import 'package:threecloud/screens/family_adding_dialog.dart';
 import '../models/directory.dart';
 import 'package:threecloud/screens/file_details_screen.dart';
 import '../models/resource.dart';
+import '../models/user.dart';
 import '../widgets/floating_button.dart';
 import 'content_sharing_screen.dart';
 import 'package:path_provider/path_provider.dart';
@@ -67,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     getResources();
     getSharedResources();
+    getVerifications();
   }
 
   @override
@@ -77,6 +79,12 @@ class _HomeScreenState extends State<HomeScreen> {
   getResources() async {
     elements = Resource.getMyResources(currentPath);
     setState(() {});
+  }
+
+  getVerifications()async {
+    setState(() {
+      verificationRequests = User.getInvitations();
+    });
   }
 
   getSharedResources() async {
@@ -789,7 +797,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         children: [
                           Padding(padding: EdgeInsets.all(8.0),child:Text("Verification Requests",style: TextStyle(color: Colors.black,fontSize: 25,fontWeight: FontWeight.w500,))),
-
+                          if (snapshot.data.length==0)
+                            Padding(padding: EdgeInsets.all(8.0),child:Text("There is no pending requests",style: TextStyle(color: Colors.black,fontSize: 22,fontWeight: FontWeight.w400,))),
+                          if (snapshot.data.length!=0)
+                          for (var item in snapshot.data)
                           Card(
                             child: SizedBox(
                               width: 350,
@@ -797,7 +808,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                              Padding(padding: EdgeInsets.all(8.0),child:Text("vukasinb7",style: TextStyle(color: Colors.black,fontSize: 22,fontWeight: FontWeight.w400,))),
+                              Padding(padding: EdgeInsets.all(8.0),child:Text(item['member_username'],style: TextStyle(color: Colors.black,fontSize: 22,fontWeight: FontWeight.w400,))),
                                   Row(
                                     children: [
                                       Padding(
@@ -811,6 +822,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               color: Colors.black,
                                             ),
                                             onPressed: () {
+                                              User.answerInvite(item['id'].split('/')[1], true).whenComplete(() => getVerifications());
                                             },
                                           ),
                                         ),),
@@ -826,6 +838,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               color: Colors.black,
                                             ),
                                             onPressed: () {
+                                              User.answerInvite(item['id'].split('/')[1], false).whenComplete(() => getVerifications());
                                             },
                                           ),
                                         ),),

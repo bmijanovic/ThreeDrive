@@ -67,7 +67,6 @@ def register(username, password, email, birthdate, name, surname):
 
     # Create a new user
     user_item = {
-        'id': str(uuid.uuid4()),
         'username': username,
         'password': sha256(password.encode('utf-8')).hexdigest(),
         'email': email,

@@ -42,10 +42,38 @@ class User {
     );
     var res = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      // var userData = jsonDecode(response.body);
-      // user = User(userData['id'], userData['firstName'], userData['lastName'],
-      //     userData['email'], userData['password'], 0.0);
-      // return jsonDecode(response.body)['id'];
+      return "1";
+    } else {
+      throw StateError(res['body']);
+    }
+  }
+
+  static Future<String> registerWithInvite(String name, String surname, String email, String password, String birthdate, String username,String inviter) async
+  {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.post(
+      Uri.parse('${url}familyProcess'),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+      },
+      body: json.encode(
+        {
+          'name': name,
+          'surname': surname,
+          'email': email,
+          'password': password,
+          'birthdate': birthdate,
+          'username': username,
+          'inviter': inviter
+        },
+      ),
+    );
+    var res = jsonDecode(response.body);
+    if (response.statusCode == 200) {
       return "1";
     } else {
       throw StateError(res['body']);
@@ -86,6 +114,54 @@ class User {
     await prefs.setBool("loggedIn", true);
     await prefs.setString("username", username);
     await prefs.setString("token", token);
+  }
+  static Future<dynamic> getInvitations() async
+  {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.get(
+      Uri.parse("${url}invitation"),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
+      },
+    );
+    var res = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return res['data'];
+    } else {
+      throw StateError(res['body']);
+    }
+  }
+  static Future<String> answerInvite(String email,bool isAccepted) async
+  {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.post(
+      Uri.parse("${url}invitation"),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
+      },
+      body: json.encode(
+        {
+          'email': email,
+          'accept':isAccepted
+        },
+      ),
+    );
+    var res = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return "1";
+    } else {
+      throw StateError(res['body']);
+    }
   }
 
 }
