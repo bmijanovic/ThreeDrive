@@ -35,7 +35,7 @@ class FamilyEmailPopupState extends State<FamilyEmailPopup> {
       actions: [
         TextButton(
           onPressed: (() {
-            // Invitation.create(_emailController.text);
+            Invitation.create(_emailController.text);
             Navigator.pop(context);
           }),
           child: const Text('Submit'),

@@ -3,7 +3,7 @@ import json
 from utility.dynamo_invitations import check_invitation_in_dynamo
 
 
-def family_member_check_aproval(event, context):
+def family_member_check_approval(event, context):
     try:
         inviter_username = event['inviter_username']
         inviter_email = event['inviter_email']

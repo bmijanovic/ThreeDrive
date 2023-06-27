@@ -111,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         iconTheme: IconThemeData(color: Colors.white, size: 30),
                         leading: shouldShowBack(),
                         actions: <Widget>[
+
                           if(_activeIndex==0)
                         IconButton(onPressed: ((){
                           Navigator.push(
@@ -878,6 +879,7 @@ class _HomeScreenState extends State<HomeScreen> {
               });
             }
           }
+          else{getResources();}
           if (index == 1 && _activeIndex == 1) {
             if (currentPathShared.length > 1) {
               setState(() {
@@ -886,6 +888,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 getSharedResources();
               });
             }
+          }else {getSharedResources();}
+          if (index ==2){
+            getVerifications();
           }
           _activeIndex = index;
           setState(() {
