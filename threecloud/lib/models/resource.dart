@@ -37,6 +37,36 @@ class Resource {
     }
   }
 
+  static Future<String> edit(String name, String image,List<Map<String,String>> tags,String current_path) async
+  {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.put(
+      Uri.parse("${url}resource"),
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer ${(await SharedPreferences.getInstance()).getString("token")}'
+      },
+      body: json.encode(
+        {
+          'name': name,
+          'image': image,
+          'tags':tags,
+          'path':current_path
+        },
+      ),
+    );
+    var res = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return "1";
+    } else {
+      throw StateError(res['body']);
+    }
+  }
+
   static Future<bool> delete(String name, String currentPath) async
   {
     bool trustSelfSigned = true;
@@ -262,7 +292,20 @@ class Resource {
     );
     var res = jsonDecode(response.body);
     if (response.statusCode == 200) {
-        return res;
+      List<dynamic> directories=[];
+      List<dynamic> resources = [];
+      if (res['directories'] != null) {
+        if (res['directories'].length > 0) {
+          directories.addAll(res['directories']);
+        }
+      }
+      if (res['resources'] != null) {
+        if (res['resources'].length>0) {
+          resources.addAll(res['resources']);
+        }
+      }
+      DirectoryDTO returnValue= DirectoryDTO((directories)?.map((item) => item as String)?.toList(),(resources)?.map((item) => item as String)?.toList());
+      return returnValue ;
     } else {
         throw StateError(res['body']);
     }

@@ -1,22 +1,20 @@
-import json
 import base64
+import datetime
+import json
 import os
+import sys
+
 import boto3
 import filetype
-import sys
-import datetime
 
-from utility.dynamo_directory import find_directory_by_path, insert_directory_in_dynamo
-from utility.dynamo_resources import find_resource_by_path, insert_resource_in_dynamo
-from utility.s3_resources import insert_resource_in_s3
+from utility.dynamo_resources import find_resource_by_path
 from utility.utils import create_response
 
 table_name = os.environ['RESOURCES_TABLE_NAME']
 bucket_name = os.environ['RESOURCES_BUCKET_NAME']
+upload_sqs_queue_name = os.environ['UPLOAD_SQS_QUEUE_NAME']
 
-
-def upload(event, context):
-
+def beginUpload(event, context):
     try:
         db = boto3.client('dynamodb')
         body = json.loads(event['body'])
@@ -61,27 +59,23 @@ def upload(event, context):
     }
     for tag in tags:
         resource_item[tag['key']] = tag['value']
-    insert_resource_in_s3(fileKey, fileBytes)
-    insert_resource_in_dynamo(resource_item)
 
-
-
-    parent_directory = find_directory_by_path(path)[0]
-    if 'items' in parent_directory:
-        parent_directory['items'] += [fileKey]
-    else:
-        parent_directory['items']=[fileKey]
-    parent_directory['time_updated'] = str(datetime.datetime.now().time())
-
-    insert_directory_in_dynamo(parent_directory)
+    sqs = boto3.client('sqs')
+    queue_url = sqs.get_queue_url(QueueName=upload_sqs_queue_name)['QueueUrl']
+    message = {
+        'resource_item': resource_item,
+        'fileKey': fileKey,
+        'fileBytes': base64.b64encode(fileBytes).decode('utf-8'),
+        'path': path
+    }
+    sqs.send_message(
+        QueueUrl=queue_url,
+        MessageBody=json.dumps(message)
+    )
 
     body = {
         'data': "File Uploaded"
     }
     return create_response(200, body)
-    # return {
-    #     'statusCode': 200,
-    #     'body': "File Uploaded"
-    # }
 
 
