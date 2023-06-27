@@ -118,7 +118,7 @@ class User {
 
   static rememberThatUserLoggedOut() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("loggedIn", true);
+    await prefs.remove("loggedIn");
     await prefs.remove("username");
     await prefs.remove("token");
   }
