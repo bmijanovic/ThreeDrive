@@ -17,8 +17,8 @@ def family_member_invitation(event, context):
         }
         return create_response(400, body)
 
-    user = 'mrmijan'
-    # user = event['requestContext']['authorizer']['username']
+    # user = 'mrmijan'
+    user = event['requestContext']['authorizer']['username']
 
     try:
         invite(user, family_member_email)

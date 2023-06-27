@@ -427,11 +427,11 @@ functions:
 stepFunctions:
   stateMachines:
     familyRegistration:
-      name: 'Family registration step process'
+      name: 'FamilyRegistrationStepProcess'
       events:
-        -http:
-          path: familyProcess
-          method: post
+        - http:
+            path: familyProcess
+            method: post
       definition:
         StartAt: familyMemberRegistration
         States:
@@ -439,7 +439,7 @@ stepFunctions:
             Type: Task
             Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberRegistration"
             Next: checkUserValidity
-            Parameters:
+
 
           checkUserValidity:
             Type: Choice
@@ -453,7 +453,7 @@ stepFunctions:
             Type: Task
             Resource: "arn:aws:lambda:eu-central-1:*:function:familyRegistrationNotifyInviter"
             Next: checkApproval
-            Parameters:
+
 
           checkApproval:
             Type: Task
@@ -462,9 +462,9 @@ stepFunctions:
               - ErrorEquals:
                   - States.TaskFailed
                 IntervalSeconds: 30
-                MaxAttempts: 5
-            Next: check
-            Parameters:
+                MaxAttempts: 10
+            Next: checkIfUserApprove
+
 
           checkIfUserApprove:
             Type: Choice
@@ -478,7 +478,7 @@ stepFunctions:
             Type: Task
             Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberGiveAccess"
             Next: successfullRegistration
-            Parameters:
+
 
           successfullRegistration:
             Type: Pass
@@ -487,6 +487,7 @@ stepFunctions:
           unsuccessfullRegistration:
             Type: Pass
             End: true
+
 
 
 

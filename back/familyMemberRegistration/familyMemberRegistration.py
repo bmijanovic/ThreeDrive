@@ -74,6 +74,7 @@ def register(username, password, email, birthdate, name, surname, invitation):
     make_user_home_directory(username)
 
     invitation["status"] = "registered"
+    invitation["member_username"] = username
     insert_invite_in_dynamo(invitation)
 
     return user_item
