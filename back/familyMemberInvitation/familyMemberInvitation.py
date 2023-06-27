@@ -34,7 +34,9 @@ def family_member_invitation(event, context):
 
 
 def invite(user, family_member_email):
-    if find_user_by_email(family_member_email)[0] is not None:
+    users = find_user_by_email(family_member_email)
+    print(users)
+    if users:
         raise ValueError("This family member already has account")
 
     new_invite = {
@@ -46,7 +48,7 @@ def invite(user, family_member_email):
     sender_email = "certificateswebapp@gmail.com"
     recipient_email = family_member_email
     subject = "Invitation to TreeCloud"
-    body = f'You are invited by {user["username"]} to join TreeCloud. Download the application and in register tab ' \
+    body = f'You are invited by {user} to join TreeCloud. Download the application and in register tab ' \
            f'check that you are invited and enter the username from person that invited you!'
 
     ses_client = boto3.client("ses")

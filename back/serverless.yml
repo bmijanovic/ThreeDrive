@@ -19,12 +19,12 @@ provider:
       Ref: invitesTable
     RESOURCES_BUCKET_NAME:
       Ref: resourcesThreeCloud
-    UPLOAD_SQS_QUEUE_NAME:
-      Fn::GetAtt:
-        - uploadSqsQueue
-        - QueueName
-    UPLOAD_SNS_TOPIC_ARN:
-      Ref: uploadSnsTopic
+#    UPLOAD_SQS_QUEUE_NAME:
+#      Fn::GetAtt:
+#        - uploadSqsQueue
+#        - QueueName
+#    UPLOAD_SNS_TOPIC_ARN:
+#      Ref: uploadSnsTopic
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -61,19 +61,27 @@ provider:
       Action:
         - ses:SendEmail
       Resource:
-        - "Fn::GetAtt": [ familyMemberInvitation, Arn ]
+        - "arn:aws:lambda:eu-central-1:*:function:familyMemberInvitation"
 
     - Effect: Allow
       Action:
-        - sqs:*
+        - ses:SendEmail
+        - ses:SendRawEmail
       Resource:
-        - "arn:aws:sqs:eu-central-1:*:*"
+        - "arn:aws:ses:eu-central-1:239804187295:identity/certificateswebapp@gmail.com"
+        - "*"
 
-    - Effect: Allow
-      Action:
-        - sns:*
-      Resource:
-        - "arn:aws:sns:eu-central-1:*:*"
+#    - Effect: Allow
+#      Action:
+#        - sqs:*
+#      Resource:
+#        - "arn:aws:sqs:eu-central-1:*:*"
+#
+#    - Effect: Allow
+#      Action:
+#        - sns:*
+#      Resource:
+#        - "arn:aws:sns:eu-central-1:*:*"
 
 package:
   individually: true
@@ -130,21 +138,21 @@ functions:
     package:
       include:
         - 'uploadResource/**'
-    events:
-      - sqs:
-          arn:
-            Fn::GetAtt:
-              - uploadSqsQueue
-              - Arn
+#    events:
+#      - sqs:
+#          arn:
+#            Fn::GetAtt:
+#              - uploadSqsQueue
+#              - Arn
 
   notifyUploadCompletion:
     handler: uploadResource/notifyUploadCompletion.notifyUploadCompletion
     package:
       patterns:
         - 'uploadResource/**'
-    events:
-      - sns:
-          topicName: upload-sns-topic
+#    events:
+#      - sns:
+#          topicName: upload-sns-topic
 
   deleteResource:
     handler: deleteResource/deleteResource.delete
@@ -422,25 +430,25 @@ resources:
       Properties:
         BucketName: resources-three-cloud
 
-    uploadSqsQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: upload-sqs-queue
-
-    uploadSnsTopic:
-      Type: AWS::SNS::Topic
-      Properties:
-        DisplayName: Upload SNS Topic
-        TopicName: upload-sns-topic
-
-    uploadSnsTopicSubscription:
-      Type: AWS::SNS::Subscription
-      Properties:
-        Protocol: lambda
-        TopicArn:
-          Ref: uploadSnsTopic
-        Endpoint:
-          Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:three-drive-dev-notifyUploadCompletion"
+#    uploadSqsQueue:
+#      Type: AWS::SQS::Queue
+#      Properties:
+#        QueueName: upload-sqs-queue
+#
+#    uploadSnsTopic:
+#      Type: AWS::SNS::Topic
+#      Properties:
+#        DisplayName: Upload SNS Topic
+#        TopicName: uploadSnsTopic
+#
+#    uploadSnsTopicSubscription:
+#      Type: AWS::SNS::Subscription
+#      Properties:
+#        Protocol: lambda
+#        TopicArn:
+#          Ref: uploadSnsTopic
+#        Endpoint:
+#          Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:three-drive-dev-notifyUploadCompletion"
 
 
 plugins:
