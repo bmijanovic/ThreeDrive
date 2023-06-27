@@ -24,3 +24,19 @@ def check_invitation_in_dynamo(inviter, email):
         }
     )
     return response['Items']
+
+
+def get_invitations_by_inviter_username_from_dynamo(username):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name_invites)
+    response = table.scan(
+        FilterExpression="contains(#i, :search_string)",
+        ExpressionAttributeNames={
+            "#i": "id"
+        },
+        ExpressionAttributeValues={
+            ':search_string': username
+        }
+    )
+
+    return response['Items']

@@ -6,13 +6,13 @@ from hashlib import sha256
 
 from registration.registration import insert_user_in_dynamo
 from utility.dynamo_directory import insert_directory_in_dynamo
-from utility.dynamo_invitations import check_invitation_in_dynamo
+from utility.dynamo_invitations import check_invitation_in_dynamo, insert_invite_in_dynamo
 from utility.dynamo_users import find_user_by_username, find_user_by_email
 from utility.utils import create_response
 from dateutil.parser import parse
 
 
-def registration(event, context):
+def family_member_registration(event, context):
     try:
         body = json.loads(event['body'])
         username = body['username']
@@ -23,28 +23,28 @@ def registration(event, context):
         surname = body['surname']
         inviter = body['inviter']
     except (KeyError, json.decoder.JSONDecodeError):
-        body = {
-            'data': json.dumps('Invalid request body')
-        }
-        return create_response(400, body)
+        return {"valid": False}
 
     try:
-        if not check_invitation_in_dynamo(inviter, email):
+        invitation = check_invitation_in_dynamo(inviter, email)
+        if not invitation:
             raise ValueError("User is not invited by this user")
-        register(username, password, email, birthdate, name, surname)
-        body = {
-            'data': json.dumps('User registration successful')
+        invitation = invitation[0]
+        new_user = register(username, password, email, birthdate, name, surname, invitation)
+        whole_inviter = find_user_by_username(inviter)
+        return {
+            "valid": True,
+            "inviter_email": whole_inviter['email'],
+            "inviter_username": whole_inviter['username'],
+            "family_member_username": new_user['username'],
+            "family_member_email": new_user['email']
         }
-        return create_response(200, body)
 
     except ValueError as err:
-        body = {
-            'data': json.dumps(str(err))
-        }
-        return create_response(400, body)
+        return {"valid": False}
 
 
-def register(username, password, email, birthdate, name, surname):
+def register(username, password, email, birthdate, name, surname, invitation):
     # Validate user data
     if not username or not password or not email or not birthdate or not name or not surname:
         raise ValueError("All fields are required!")
@@ -72,6 +72,11 @@ def register(username, password, email, birthdate, name, surname):
     }
     insert_user_in_dynamo(user_item)
     make_user_home_directory(username)
+
+    invitation["status"] = "registered"
+    insert_invite_in_dynamo(invitation)
+
+    return user_item
 
 
 def is_valid_email(email):

@@ -25,6 +25,9 @@ provider:
         - QueueName
     UPLOAD_SNS_TOPIC_ARN:
       Ref: uploadSnsTopic
+    NOTIFY_INVITER_SNS_TOPIC_ARN:
+      Ref: notifyInviterSnsTopic
+
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -356,10 +359,134 @@ functions:
           path: familyInvitation
           method: post
           cors: true
-#          authorizer:
-#            name: authorize
-#            resultTtlInSeconds: 0
-#            type: token
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  getInvitations:
+    handler: getInvitations/getInvitations.get_invitations
+    package:
+      include:
+        - 'getInvitations/**'
+    events:
+      - http:
+          path: invitation
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  resolveInvitation:
+    handler: resolveInvitation/resolveInvitation.resolve_invitation
+    package:
+      include:
+        - 'resolveInvitation/**'
+    events:
+      - http:
+          path: invitation
+          method: post
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  familyMemberRegistration:
+    handler: familyMemberRegistration/familyMemberRegistration.family_member_registration
+    package:
+      include:
+        - 'familyMemberRegistration/**'
+
+  familyRegistrationNotifyInviter:
+    handler: familyRegistrationNotifyInviter/familyRegistrationNotifyInviter.family_registration_notify_inviter
+    package:
+      include:
+        - 'familyRegistrationNotifyInviter/**'
+
+  familyMemberCheckApproval:
+    handler: familyMemberCheckApproval/familyMemberCheckApproval.family_member_check_approval
+    package:
+      include:
+        - 'familyMemberCheckApproval/**'
+
+  familyMemberGiveAccess:
+    handler: familyMemberGiveAccess/familyMemberGiveAccess.family_member_give_access
+    package:
+      include:
+        - 'familyMemberGiveAccess/**'
+
+  notifyInviter:
+    handler: notifyInviter/notifyInviter.notify_inviter
+    package:
+      include:
+        - 'notifyInviter/**'
+
+stepFunctions:
+  stateMachines:
+    familyRegistration:
+      name: 'Family registration step process'
+      events:
+        -http:
+          path: familyProcess
+          method: post
+      definition:
+        StartAt: familyMemberRegistration
+        States:
+          familyMemberRegistration:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberRegistration"
+            Next: checkUserValidity
+            Parameters:
+
+          checkUserValidity:
+            Type: Choice
+            Choices:
+              - Variable: "$.valid"
+                BooleanEquals: true
+                Next: familyRegistrationNotifyInviter
+            Default: unsuccessfullRegistration
+
+          familyRegistrationNotifyInviter:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:*:function:familyRegistrationNotifyInviter"
+            Next: checkApproval
+            Parameters:
+
+          checkApproval:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberCheckApproval"
+            Retry:
+              - ErrorEquals:
+                  - States.TaskFailed
+                IntervalSeconds: 30
+                MaxAttempts: 5
+            Next: check
+            Parameters:
+
+          checkIfUserApprove:
+            Type: Choice
+            Choices:
+              - Variable: "$.valid"
+                BooleanEquals: true
+                Next: giveAccess
+            Default: successfullRegistration
+
+          giveAccess:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberGiveAccess"
+            Next: successfullRegistration
+            Parameters:
+
+          successfullRegistration:
+            Type: Pass
+            End: true
+
+          unsuccessfullRegistration:
+            Type: Pass
+            End: true
 
 
 
@@ -438,6 +565,12 @@ resources:
         DisplayName: Upload SNS Topic
         TopicName: uploadSnsTopic
 
+    notifyInviterSnsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Notify Inviter SNS Topic
+        TopicName: notifyInviterSnsTopic
+
     uploadSnsTopicSubscription:
       Type: AWS::SNS::Subscription
       Properties:
@@ -447,9 +580,21 @@ resources:
         Endpoint:
           Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:three-drive-dev-notifyUploadCompletion"
 
+    notifyInviterSNSTopicSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: lambda
+        TopicArn:
+          Ref: notifyInviterSnsTopic
+        Endpoint:
+          Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:three-drive-dev-notifyInviter"
+
+
+
 
 plugins:
   - serverless-python-requirements
+  - serverless-step-functions
 
 
 custom:
