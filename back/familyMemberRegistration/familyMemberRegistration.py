@@ -9,7 +9,7 @@ import boto3
 
 from utility.dynamo_directory import insert_directory_in_dynamo
 from utility.dynamo_invitations import check_invitation_in_dynamo, insert_invite_in_dynamo
-from utility.dynamo_users import find_user_by_username, find_user_by_email
+from utility.dynamo_users import find_user_by_username, find_user_by_email, delete_user_from_dynamo
 from utility.utils import create_response
 from dateutil.parser import parse
 
@@ -54,6 +54,9 @@ def register(username, password, email, birthdate, name, surname, invitation):
     if not username or not password or not email or not birthdate or not name or not surname:
         raise ValueError("All fields are required!")
 
+    if "/" in username or "." in username:
+        raise ValueError("Username is invalid!")
+
     # Check if email is in valid format
     if not is_valid_email(email):
         raise ValueError("Email is invalid!")
@@ -75,7 +78,10 @@ def register(username, password, email, birthdate, name, surname, invitation):
         'birthdate': birthdate
     }
     insert_user_in_dynamo(user_item)
-    make_user_home_directory(username)
+    try:
+        make_user_home_directory(username)
+    except:
+        delete_user_from_dynamo(user_item['username'])
 
     invitation["status"] = "registered"
     invitation["member_username"] = username

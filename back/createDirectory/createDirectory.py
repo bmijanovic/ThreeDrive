@@ -4,7 +4,8 @@ import os
 
 import boto3
 
-from utility.dynamo_directory import find_directory_by_path_and_name, find_directory_by_path, insert_directory_in_dynamo
+from utility.dynamo_directory import find_directory_by_path_and_name, find_directory_by_path, \
+    insert_directory_in_dynamo, delete_directory_from_dynamo
 from utility.utils import create_response
 
 table_name = os.environ['DIRECTORIES_TABLE_NAME']
@@ -63,8 +64,10 @@ def create_directory(path, name, user):
     parent_directory['directories'] += [new_directory['path']]
     parent_directory['time_updated'] = str(time)
 
-    insert_directory_in_dynamo(parent_directory)
-
+    try:
+        insert_directory_in_dynamo(parent_directory)
+    except:
+        delete_directory_from_dynamo(new_directory['path'])
 
 def update_parent(id, list):
     dynamodb = boto3.resource('dynamodb')

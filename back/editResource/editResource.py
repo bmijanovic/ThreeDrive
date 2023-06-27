@@ -38,7 +38,7 @@ def editResource(event, context):
         return create_response(400, {'data': json.dumps('Invalid request bodyY')})
     file=file[0]
     slices = path.split('/')
-    old_name = slices[len(slices) - 1].rsplit('.', 1)[0]  # TODO DOES ALWAYS HAS EXTENSION
+    old_name = slices[len(slices) - 1].rsplit('.', 1)[0]
     if name != old_name:
         file['name']=name
         ext="."+path.rsplit('.', 1)[1]

@@ -54,6 +54,9 @@ def register(username, password, email, birthdate, name, surname):
     if not username or not password or not email or not birthdate or not name or not surname:
         raise ValueError("All fields are required!")
 
+    if "/" in username or "." in username:
+        raise ValueError("Username is invalid!")
+
     # Check if email is in valid format
     if not is_valid_email(email):
         raise ValueError("Email is invalid!")
@@ -75,8 +78,10 @@ def register(username, password, email, birthdate, name, surname):
         'birthdate': birthdate
     }
     insert_user_in_dynamo(user_item)
-    make_user_home_directory(username)
-
+    try:
+        make_user_home_directory(username)
+    except:
+        delete_user_from_dynamo(user_item['username'])
 
 def is_valid_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'

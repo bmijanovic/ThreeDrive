@@ -3,7 +3,7 @@ import os
 import boto3
 
 from utility.dynamo_directory import find_directory_by_path
-from utility.dynamo_resources import find_resource_by_path, delete_resource_from_dynamo
+from utility.dynamo_resources import find_resource_by_path, delete_resource_from_dynamo, insert_resource_in_dynamo
 from utility.dynamo_users import find_user_by_username
 from utility.s3_resources import delete_resource_from_s3
 from utility.utils import create_response
@@ -34,8 +34,17 @@ def delete(event, context):
         items = directory['items']
         items.remove(path)
         update_parent_directory_items(head, items)
-        delete_resource_from_dynamo(resource['path'])
-        delete_resource_from_s3(resource['path'])
+
+        try:
+            delete_resource_from_dynamo(resource['path'])
+        except:
+            update_parent_directory_items(head, directory['items'])
+
+        try:
+            delete_resource_from_s3(resource['path'])
+        except:
+            update_parent_directory_items(head, directory['items'])
+            insert_resource_in_dynamo(resource)
 
         user = find_user_by_username(resource['owner'])
         if user is not None:
