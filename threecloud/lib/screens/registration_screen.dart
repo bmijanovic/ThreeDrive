@@ -5,8 +5,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../widgets/big_text_field.dart';
 
-class RegistrationScreen extends StatelessWidget {
-  RegistrationScreen({Key? key}) : super(key: key);
+class RegistrationScreen extends StatefulWidget {
+  RegistrationScreen({super.key});
+
+  @override
+  RegistrationScreenState createState() => RegistrationScreenState();
+}
+
+class RegistrationScreenState extends State<RegistrationScreen> {
+
+  bool isChecked =false;
 
   DateTime selectedDate = DateTime.now();
 
@@ -17,6 +25,8 @@ class RegistrationScreen extends StatelessWidget {
   final TextEditingController birthdateController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController passwordRepeatController = TextEditingController();
+  final TextEditingController referralUsername = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +56,7 @@ class RegistrationScreen extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          flex: 9,
+                          flex: 4,
                           child: BigTextField(
                               birthdateController,
                               TextInputType.datetime,
@@ -57,11 +67,11 @@ class RegistrationScreen extends StatelessWidget {
                         const Expanded(
                           flex: 1,
                           child: SizedBox(
-                            width: 10.0,
+                            width: 1.0,
                           ),
                         ),
                         Expanded(
-                          flex: 3,
+                          flex: 5,
                           child: ElevatedButton(
                             onPressed: () => _selectDate(context),
                             child: const Text('Select date'),
@@ -78,9 +88,36 @@ class RegistrationScreen extends StatelessWidget {
                     const SizedBox(
                       height: 20.0,
                     ),
-                    ElevatedButton(
-                      onPressed: (() => createAccount(context)),
-                      child: const Text("Register"),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: CheckboxListTile(
+                        title: Text("I have referral username",style: TextStyle(color: Colors.black,fontSize: 19,fontWeight: FontWeight.w400,)),
+                        value: isChecked,
+                        contentPadding: EdgeInsets.zero,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            isChecked = value!;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,  //  <-- leading Checkbox
+                      ),
+                    ),
+                    if (isChecked)
+                    BigTextField(referralUsername, TextInputType.name, "Referral username*", false),
+
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: (() {
+                          if (isChecked){
+                            //TODO Register referral
+                          }else{
+                            createAccount(context);
+                          }
+                        }
+                        ),
+                        child: const Text("Register"),
+                      ),
                     )
                   ],
                 ),
@@ -128,8 +165,8 @@ class RegistrationScreen extends StatelessWidget {
         surnameController.text == "" ||
         emailController.text == "" ||
         passwordController.text == "" ||
-        passwordController.text == "") {
-      showError(context, "Invalide input values");
+        passwordController.text == "" || (isChecked && referralUsername.text=="")) {
+      showError(context, "Invalid input values");
       return false;
     }
     if (passwordController.text != passwordRepeatController.text) {
@@ -151,4 +188,5 @@ class RegistrationScreen extends StatelessWidget {
       barrierDismissible: true,
     );
   }
+
 }

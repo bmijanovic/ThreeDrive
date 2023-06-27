@@ -24,18 +24,53 @@ class _DirectoryPickerScreen extends State<DirectoryPickerScreen> {
   bool isOpening = false;
   String currentPath;
   String content;
+  String title="";
 
   _DirectoryPickerScreen(this.currentPath, this.content) {
-    getResources(currentPath);
+    currentPath=currentPath;
   }
 
   getResources(String path) async {
     if (path == "") {
       var pref = await SharedPreferences.getInstance();
       path = pref.getString("username")!;
+      currentPath=path;
     }
     elements = Resource.getMyResources(path);
-    setState(() {});
+    setState(() {
+      title=currentPath;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    setState(() {
+      getResources(currentPath);
+      title=currentPath;
+    });
+  }
+
+
+
+
+  shouldShowBack() {
+    if (currentPath.contains("/")) {
+      return InkWell(
+        onTap: () async {
+          if (await _onWillPop()) {
+            Navigator.of(context).pop(true);
+          }
+        },
+        child: const Icon(
+          Icons.arrow_back,
+          color: Colors.white,
+        ),
+      );
+    } else {
+      return InkWell();
+    }
   }
 
   Future<bool> _onWillPop() async {
@@ -44,6 +79,7 @@ class _DirectoryPickerScreen extends State<DirectoryPickerScreen> {
         List<String> folders = currentPath.split('/');
         folders.removeLast();
         currentPath = folders.join('/');
+        title=currentPath;
         getResources(currentPath);
       });
       return false;
@@ -77,6 +113,11 @@ class _DirectoryPickerScreen extends State<DirectoryPickerScreen> {
             home: DefaultTabController(
                 length: 4,
                 child: Scaffold(
+                      appBar: AppBar(
+                      title: Text(title),
+                      elevation: 0.0,
+                      iconTheme: IconThemeData(color: Colors.black, size: 30),
+                      leading: shouldShowBack()),
                     body: FutureBuilder<dynamic>(
                   future: elements,
                   builder:
@@ -138,6 +179,7 @@ class _DirectoryPickerScreen extends State<DirectoryPickerScreen> {
                                           onTap: () {
                                             setState(() {
                                               currentPath = i;
+                                              title=currentPath;
                                               elements =
                                                   Resource.getMyResources(
                                                       currentPath);
