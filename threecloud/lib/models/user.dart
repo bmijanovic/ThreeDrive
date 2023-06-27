@@ -115,6 +115,13 @@ class User {
     await prefs.setString("username", username);
     await prefs.setString("token", token);
   }
+
+  static rememberThatUserLoggedOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("loggedIn", true);
+    await prefs.remove("username");
+    await prefs.remove("token");
+  }
   static Future<dynamic> getInvitations() async
   {
     bool trustSelfSigned = true;

@@ -19,6 +19,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 
 import 'directory_picker_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String currentPath;
@@ -892,6 +893,16 @@ class _HomeScreenState extends State<HomeScreen> {
           if (index ==2){
             getVerifications();
           }
+          if (index == 3) {
+            User.rememberThatUserLoggedOut();
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (BuildContext context) => LoginScreen()),
+                  (Route<dynamic> route) => false,
+            );
+
+
+          }
+          print(index);
           _activeIndex = index;
           setState(() {
             updateTitle(index);
