@@ -14,3 +14,15 @@ def find_user_by_username(username):
         }
     )
     return response['Items']
+
+
+def find_user_by_email(email):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(table_name_users)
+    response = table.scan(
+        FilterExpression="email = :email",
+        ExpressionAttributeValues={
+            ":email": email
+        }
+    )
+    return response['Items']

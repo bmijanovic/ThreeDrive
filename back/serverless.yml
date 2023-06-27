@@ -15,6 +15,8 @@ provider:
       Ref: resourcesTable
     DIRECTORIES_TABLE_NAME:
       Ref: directoriesTable
+    INVITES_TABLE_NAME:
+      Ref: invitesTable
     RESOURCES_BUCKET_NAME:
       Ref: resourcesThreeCloud
   iamRoleStatements:
@@ -31,6 +33,7 @@ provider:
         - "Fn::GetAtt": [ usersTable, Arn ]
         - "Fn::GetAtt": [ resourcesTable, Arn ]
         - "Fn::GetAtt": [ directoriesTable, Arn ]
+        - "Fn::GetAtt": [ invitesTable, Arn ]
 
     - Effect: Allow
       Action:
@@ -47,6 +50,12 @@ provider:
         - lambda:InvokeFunction
       Resource:
         - "arn:aws:lambda:eu-central-1:*:function:three-drive-dev-authorizer"
+
+    - Effect: Allow
+      Action:
+        - ses:SendEmail
+      Resource:
+        - "Fn::GetAtt": [ familyMemberInvitation, Arn ]
 
 package:
   individually: true
@@ -293,6 +302,24 @@ functions:
             resultTtlInSeconds: 0
             type: token
 
+  familyMemberInvitation:
+    handler: familyMemberInvitation/familyMemberInvitation.family_member_invitation
+    package:
+      include:
+        - 'familyMemberInvitation/**'
+    events:
+      - http:
+          path: familyInvitation
+          method: post
+          cors: true
+#          authorizer:
+#            name: authorize
+#            resultTtlInSeconds: 0
+#            type: token
+
+
+
+
 resources:
   Resources:
     usersTable:
@@ -332,6 +359,20 @@ resources:
             AttributeType: S
         KeySchema:
           - AttributeName: path
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    invitesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Invites
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

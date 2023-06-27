@@ -18,7 +18,7 @@ def moving(event, context):
         return create_response(400, body)
 
     user = event['requestContext']['authorizer']['username']
-    user = None
+    # user = None
 
     try:
         move(path, new_path, user)
