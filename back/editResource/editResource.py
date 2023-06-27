@@ -10,12 +10,14 @@ import filetype
 from utility.dynamo_directory import find_directory_by_path_and_name, find_directory_by_path, \
     insert_directory_in_dynamo, delete_directory_from_dynamo
 from utility.dynamo_resources import find_resource_by_path, insert_resource_in_dynamo, delete_resource_from_dynamo
+from utility.dynamo_users import find_user_by_username
 from utility.s3_resources import update_s3_key, delete_resource_from_s3, insert_resource_in_s3
 from utility.utils import create_response
 
 table_name = os.environ['DIRECTORIES_TABLE_NAME']
 s3_name = os.environ['RESOURCES_BUCKET_NAME']
-
+resource_sns_topic_arn = os.environ['RESOURCE_SNS_TOPIC_ARN']
+sns = boto3.client('sns')
 
 # name,path,image,tags
 def editResource(event, context):
@@ -79,6 +81,18 @@ def editResource(event, context):
         insert_resource_in_s3(path, file_bytes)
 
     insert_resource_in_dynamo(file)
+
+    user = find_user_by_username(file['owner'])
+    if user is not None:
+        sns.publish(
+            TopicArn=resource_sns_topic_arn,
+            Message=json.dumps({
+                "receiver": user['email'],
+                "subject": 'File edited successfully!',
+                "content": 'Your file ' + file['path'].split("/")[-1] + 'has been edited successfully!'
+            }),
+            Subject='File Edit'
+        )
 
     body = {
         'data': json.dumps('File edited')

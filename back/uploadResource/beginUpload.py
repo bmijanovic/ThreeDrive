@@ -63,6 +63,7 @@ def beginUpload(event, context):
     sqs = boto3.client('sqs')
     queue_url = sqs.get_queue_url(QueueName=upload_sqs_queue_name)['QueueUrl']
     message = {
+        'owner': event['requestContext']['authorizer']['username'],
         'resource_item': resource_item,
         'fileKey': fileKey,
         'fileBytes': base64.b64encode(fileBytes).decode('utf-8'),

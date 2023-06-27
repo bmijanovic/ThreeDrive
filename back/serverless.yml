@@ -23,8 +23,8 @@ provider:
       Fn::GetAtt:
         - uploadSqsQueue
         - QueueName
-    UPLOAD_SNS_TOPIC_ARN:
-      Ref: uploadSnsTopic
+    RESOURCE_SNS_TOPIC_ARN:
+      Ref: resourceSnsTopic
     NOTIFY_INVITER_SNS_TOPIC_ARN:
       Ref: notifyInviterSnsTopic
 
@@ -148,11 +148,14 @@ functions:
               - uploadSqsQueue
               - Arn
 
-  notifyUploadCompletion:
-    handler: uploadResource/notifyUploadCompletion.notifyUploadCompletion
+  notifyResourceAction:
+    handler: notifyResourceAction/notifyResourceAction.notifyResourceAction
     package:
       patterns:
-        - 'uploadResource/**'
+        - 'notifyResourceAction/**'
+    events:
+      - sns:
+          arn: "arn:aws:sns:eu-central-1:239804187295:resourceSnsTopic"
 
   deleteResource:
     handler: deleteResource/deleteResource.delete
@@ -423,6 +426,9 @@ functions:
     package:
       include:
         - 'notifyInviter/**'
+    events:
+      - sns:
+          arn: "arn:aws:sns:eu-central-1:239804187295:notifyInviterSnsTopic"
 
 stepFunctions:
   stateMachines:
@@ -487,10 +493,6 @@ stepFunctions:
           unsuccessfullRegistration:
             Type: Pass
             End: true
-
-
-
-
 
 resources:
   Resources:
@@ -560,11 +562,11 @@ resources:
       Properties:
         QueueName: upload-sqs-queue
 
-    uploadSnsTopic:
+    resourceSnsTopic:
       Type: AWS::SNS::Topic
       Properties:
-        DisplayName: Upload SNS Topic
-        TopicName: uploadSnsTopic
+        DisplayName: Resource SNS Topic
+        TopicName: resourceSnsTopic
 
     notifyInviterSnsTopic:
       Type: AWS::SNS::Topic
@@ -572,14 +574,14 @@ resources:
         DisplayName: Notify Inviter SNS Topic
         TopicName: notifyInviterSnsTopic
 
-    uploadSnsTopicSubscription:
+    resourceSnsTopicSubscription:
       Type: AWS::SNS::Subscription
       Properties:
         Protocol: lambda
         TopicArn:
-          Ref: uploadSnsTopic
+          Ref: resourceSnsTopic
         Endpoint:
-          Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:three-drive-dev-notifyUploadCompletion"
+          Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:three-drive-dev-notifyResourceAction"
 
     notifyInviterSNSTopicSubscription:
       Type: AWS::SNS::Subscription
