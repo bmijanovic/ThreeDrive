@@ -7,6 +7,7 @@ import 'package:file_icon/file_icon.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:threecloud/screens/edit_file_screen.dart';
+import 'package:threecloud/screens/family_adding_dialog.dart';
 import '../models/directory.dart';
 import 'package:threecloud/screens/file_details_screen.dart';
 import '../models/resource.dart';
@@ -29,6 +30,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Future<dynamic>? elements;
   Future<dynamic>? elementsShared;
+  Future<dynamic>? verificationRequests;
   bool isOpening = false;
   var lifecycleEventHandler;
   String currentPath;
@@ -97,13 +99,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     appBar: AppBar(
                         title: Text(title),
                         elevation: 0.0,
-                        iconTheme: IconThemeData(color: Colors.black, size: 30),
-                        leading: shouldShowBack()),
+                        iconTheme: IconThemeData(color: Colors.white, size: 30),
+                        leading: shouldShowBack(),
+                        actions: <Widget>[
+                          if(_activeIndex==0)
+                        IconButton(onPressed: ((){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    ContentSharingScreen(
+                                      action:
+                                      "DIRECTORY",
+                                      path: currentPath,
+                                    )),
+                          ).then((value) => this);
+                        }), icon: Icon(Icons.group_add)),
+
+                      ],
+                        ),
                     bottomNavigationBar: menu(),
                     body: TabBarView(children: [
                       Container(child: home()),
                       Container(child: shared()),
-                      Container(child: Icon(Icons.directions_bike)),
+                      Container(child: family()),
                       Container(child: Icon(Icons.directions_bike)),
                     ])))));
   }
@@ -723,6 +742,109 @@ class _HomeScreenState extends State<HomeScreen> {
                               ]))
                     ]),
               ));
+            }
+          }
+        });
+  }
+
+  Widget family() {
+    return FutureBuilder<dynamic>(
+        future: verificationRequests, // function where you call your api
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          // AsyncSnapshot<Your object type>
+          if (snapshot.connectionState == ConnectionState.waiting ||
+              isOpening) {
+            return Scaffold(
+              body: Center(
+                child: Container(
+                    width: 200,
+                    height: 200,
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          color: Colors.blueAccent,
+                          semanticsLabel: "Loading",
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            "Loading",
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                        )
+                      ],
+                    )),
+              ),
+            );
+          } else {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              return Scaffold(
+                  body: Scaffold(
+                    body: Center(
+                      child: Column(
+                        children: [
+                          Padding(padding: EdgeInsets.all(8.0),child:Text("Verification Requests",style: TextStyle(color: Colors.black,fontSize: 25,fontWeight: FontWeight.w500,))),
+
+                          Card(
+                            child: SizedBox(
+                              width: 350,
+                              height: 100,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                              Padding(padding: EdgeInsets.all(8.0),child:Text("vukasinb7",style: TextStyle(color: Colors.black,fontSize: 22,fontWeight: FontWeight.w400,))),
+                                  Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Center(child: CircleAvatar(
+                                          radius: 20,
+                                          backgroundColor: Color(0xff94d500),
+                                          child: IconButton(
+                                            icon: Icon(
+                                              Icons.done,
+                                              color: Colors.black,
+                                            ),
+                                            onPressed: () {
+                                            },
+                                          ),
+                                        ),),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Center(child: CircleAvatar(
+                                          radius: 20,
+                                          backgroundColor: Colors.red,
+                                          child: IconButton(
+                                            icon: Icon(
+                                              Icons.close,
+                                              color: Colors.black,
+                                            ),
+                                            onPressed: () {
+                                            },
+                                          ),
+                                        ),),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                        ],
+                      ),
+                    ),
+
+                    floatingActionButton: FloatingActionButton( onPressed: (){
+                      showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) =>FamilyEmailPopup(context));}, child: const Icon(Icons.add)),
+                  ));
             }
           }
         });

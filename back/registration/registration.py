@@ -8,6 +8,8 @@ import uuid
 import re
 from hashlib import sha256
 
+from dateutil.parser import parse
+
 from utility.dynamo_directory import insert_directory_in_dynamo
 from utility.dynamo_users import find_user_by_username
 from utility.utils import create_response
@@ -122,6 +124,7 @@ def make_user_home_directory(username):
         'name': username,
         'owner': username,
         'items': [],
+        'share': [],
         'directories': [],
         'time_created': str(time),
         'time_updated': str(time)

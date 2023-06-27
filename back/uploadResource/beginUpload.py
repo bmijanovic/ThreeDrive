@@ -74,7 +74,7 @@ def beginUpload(event, context):
     )
 
     body = {
-        'data': "File Uploaded"
+        'data': "Uploading process started"
     }
     return create_response(200, body)
 

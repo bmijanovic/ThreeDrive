@@ -1,4 +1,5 @@
 import boto3
 
 def notifyUploadCompletion(event, context):
-    print(event)
+    message = event['Records'][0]['Sns']['Message']
+    print(message)

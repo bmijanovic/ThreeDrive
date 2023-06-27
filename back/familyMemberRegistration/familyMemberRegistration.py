@@ -103,6 +103,7 @@ def make_user_home_directory(username):
         'owner': username,
         'items': [],
         'directories': [],
+        'share': [],
         'time_created': str(time),
         'time_updated': str(time)
     }
