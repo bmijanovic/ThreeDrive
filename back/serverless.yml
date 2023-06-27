@@ -15,6 +15,8 @@ provider:
       Ref: resourcesTable
     DIRECTORIES_TABLE_NAME:
       Ref: directoriesTable
+    INVITES_TABLE_NAME:
+      Ref: invitesTable
     RESOURCES_BUCKET_NAME:
       Ref: resourcesThreeCloud
     UPLOAD_SQS_QUEUE_NAME:
@@ -23,6 +25,9 @@ provider:
         - QueueName
     UPLOAD_SNS_TOPIC_ARN:
       Ref: uploadSnsTopic
+    NOTIFY_INVITER_SNS_TOPIC_ARN:
+      Ref: notifyInviterSnsTopic
+
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -37,6 +42,7 @@ provider:
         - "Fn::GetAtt": [ usersTable, Arn ]
         - "Fn::GetAtt": [ resourcesTable, Arn ]
         - "Fn::GetAtt": [ directoriesTable, Arn ]
+        - "Fn::GetAtt": [ invitesTable, Arn ]
 
     - Effect: Allow
       Action:
@@ -53,6 +59,20 @@ provider:
         - lambda:InvokeFunction
       Resource:
         - "arn:aws:lambda:eu-central-1:*:function:three-drive-dev-authorizer"
+
+    - Effect: Allow
+      Action:
+        - ses:SendEmail
+      Resource:
+        - "arn:aws:lambda:eu-central-1:*:function:familyMemberInvitation"
+
+    - Effect: Allow
+      Action:
+        - ses:SendEmail
+        - ses:SendRawEmail
+      Resource:
+        - "arn:aws:ses:eu-central-1:239804187295:identity/certificateswebapp@gmail.com"
+        - "*"
 
     - Effect: Allow
       Action:
@@ -324,10 +344,153 @@ functions:
           path: move
           method: post
           cors: true
-#          authorizer:
-#            name: authorize
-#            resultTtlInSeconds: 0
-#            type: token
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  familyMemberInvitation:
+    handler: familyMemberInvitation/familyMemberInvitation.family_member_invitation
+    package:
+      include:
+        - 'familyMemberInvitation/**'
+    events:
+      - http:
+          path: familyInvitation
+          method: post
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  getInvitations:
+    handler: getInvitations/getInvitations.get_invitations
+    package:
+      include:
+        - 'getInvitations/**'
+    events:
+      - http:
+          path: invitation
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  resolveInvitation:
+    handler: resolveInvitation/resolveInvitation.resolve_invitation
+    package:
+      include:
+        - 'resolveInvitation/**'
+    events:
+      - http:
+          path: invitation
+          method: post
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  familyMemberRegistration:
+    handler: familyMemberRegistration/familyMemberRegistration.family_member_registration
+    package:
+      include:
+        - 'familyMemberRegistration/**'
+
+  familyRegistrationNotifyInviter:
+    handler: familyRegistrationNotifyInviter/familyRegistrationNotifyInviter.family_registration_notify_inviter
+    package:
+      include:
+        - 'familyRegistrationNotifyInviter/**'
+
+  familyMemberCheckApproval:
+    handler: familyMemberCheckApproval/familyMemberCheckApproval.family_member_check_approval
+    package:
+      include:
+        - 'familyMemberCheckApproval/**'
+
+  familyMemberGiveAccess:
+    handler: familyMemberGiveAccess/familyMemberGiveAccess.family_member_give_access
+    package:
+      include:
+        - 'familyMemberGiveAccess/**'
+
+  notifyInviter:
+    handler: notifyInviter/notifyInviter.notify_inviter
+    package:
+      include:
+        - 'notifyInviter/**'
+
+stepFunctions:
+  stateMachines:
+    familyRegistration:
+      name: 'FamilyRegistrationStepProcess'
+      events:
+        - http:
+            path: familyProcess
+            method: post
+      definition:
+        StartAt: familyMemberRegistration
+        States:
+          familyMemberRegistration:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberRegistration"
+            Next: checkUserValidity
+
+
+          checkUserValidity:
+            Type: Choice
+            Choices:
+              - Variable: "$.valid"
+                BooleanEquals: true
+                Next: familyRegistrationNotifyInviter
+            Default: unsuccessfullRegistration
+
+          familyRegistrationNotifyInviter:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:*:function:familyRegistrationNotifyInviter"
+            Next: checkApproval
+
+
+          checkApproval:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberCheckApproval"
+            Retry:
+              - ErrorEquals:
+                  - States.TaskFailed
+                IntervalSeconds: 30
+                MaxAttempts: 10
+            Next: checkIfUserApprove
+
+
+          checkIfUserApprove:
+            Type: Choice
+            Choices:
+              - Variable: "$.valid"
+                BooleanEquals: true
+                Next: giveAccess
+            Default: successfullRegistration
+
+          giveAccess:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:*:function:familyMemberGiveAccess"
+            Next: successfullRegistration
+
+
+          successfullRegistration:
+            Type: Pass
+            End: true
+
+          unsuccessfullRegistration:
+            Type: Pass
+            End: true
+
+
+
+
 
 resources:
   Resources:
@@ -373,6 +536,20 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
 
+    invitesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Invites
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
     resourcesThreeCloud:
       Type: AWS::S3::Bucket
       Properties:
@@ -387,7 +564,13 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         DisplayName: Upload SNS Topic
-        TopicName: upload-sns-topic
+        TopicName: uploadSnsTopic
+
+    notifyInviterSnsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Notify Inviter SNS Topic
+        TopicName: notifyInviterSnsTopic
 
     uploadSnsTopicSubscription:
       Type: AWS::SNS::Subscription
@@ -398,9 +581,21 @@ resources:
         Endpoint:
           Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:three-drive-dev-notifyUploadCompletion"
 
+    notifyInviterSNSTopicSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: lambda
+        TopicArn:
+          Ref: notifyInviterSnsTopic
+        Endpoint:
+          Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:three-drive-dev-notifyInviter"
+
+
+
 
 plugins:
   - serverless-python-requirements
+  - serverless-step-functions
 
 
 custom:

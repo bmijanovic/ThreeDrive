@@ -91,7 +91,7 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: CheckboxListTile(
-                        title: Text("I have referral username",style: TextStyle(color: Colors.black,fontSize: 19,fontWeight: FontWeight.w400,)),
+                        title: const Text("I have referral username",style: TextStyle(color: Colors.black,fontSize: 19,fontWeight: FontWeight.w400,)),
                         value: isChecked,
                         contentPadding: EdgeInsets.zero,
                         onChanged: (bool? value) {

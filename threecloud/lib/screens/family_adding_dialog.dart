@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:threecloud/models/directory.dart';
 
+import '../models/invitation.dart';
+
 class FamilyEmailPopup extends StatefulWidget {
 
   FamilyEmailPopup(BuildContext context);
@@ -32,7 +34,10 @@ class FamilyEmailPopupState extends State<FamilyEmailPopup> {
       ),
       actions: [
         TextButton(
-          onPressed: (() {}),
+          onPressed: (() {
+            // Invitation.create(_emailController.text);
+            Navigator.pop(context);
+          }),
           child: const Text('Submit'),
         ),
       ],

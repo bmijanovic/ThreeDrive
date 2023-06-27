@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:file_icon/file_icon.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:threecloud/models/invitation.dart';
 import 'package:threecloud/screens/edit_file_screen.dart';
 import 'package:threecloud/screens/family_adding_dialog.dart';
 import '../models/directory.dart';
@@ -734,7 +735,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 )),
                                 const SizedBox(height: 10),
                                 Text("${i.toString().split("/").last}",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
@@ -763,7 +764,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        CircularProgressIndicator(
+                        const CircularProgressIndicator(
                           color: Colors.blueAccent,
                           semanticsLabel: "Loading",
                         ),
