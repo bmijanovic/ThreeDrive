@@ -133,9 +133,6 @@ functions:
     package:
       patterns:
         - 'uploadResource/**'
-    events:
-      - sns:
-          topicName: upload-sns-topic
 
   deleteResource:
     handler: deleteResource/deleteResource.delete
