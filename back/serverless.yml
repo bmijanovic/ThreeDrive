@@ -1,0 +1,605 @@
+service: three-drive
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.10
+  stage: dev
+  region: eu-central-1
+  memorySize: 128
+  timeout: 10
+  environment:
+    USERS_TABLE_NAME:
+      Ref: usersTable
+    RESOURCES_TABLE_NAME:
+      Ref: resourcesTable
+    DIRECTORIES_TABLE_NAME:
+      Ref: directoriesTable
+    INVITES_TABLE_NAME:
+      Ref: invitesTable
+    RESOURCES_BUCKET_NAME:
+      Ref: resourcesThreeCloud
+    UPLOAD_SQS_QUEUE_NAME:
+      Fn::GetAtt:
+        - uploadSqsQueue
+        - QueueName
+    RESOURCE_SNS_TOPIC_ARN:
+      Ref: resourceSnsTopic
+    NOTIFY_INVITER_SNS_TOPIC_ARN:
+      Ref: notifyInviterSnsTopic
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "Fn::GetAtt": [ usersTable, Arn ]
+        - "Fn::GetAtt": [ resourcesTable, Arn ]
+        - "Fn::GetAtt": [ directoriesTable, Arn ]
+        - "Fn::GetAtt": [ invitesTable, Arn ]
+
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+        - s3:ListBucket
+        - s3:DeleteObject
+      Resource:
+        - "arn:aws:s3:::resources-three-cloud"
+        - "arn:aws:s3:::resources-three-cloud/*"
+
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource:
+        - "arn:aws:lambda:eu-central-1:*:function:three-drive-dev-authorizer"
+
+    - Effect: Allow
+      Action:
+        - ses:SendEmail
+      Resource:
+        - "arn:aws:lambda:eu-central-1:*:function:familyMemberInvitation"
+
+    - Effect: Allow
+      Action:
+        - ses:SendEmail
+        - ses:SendRawEmail
+      Resource:
+        - "arn:aws:ses:eu-central-1:239804187295:identity/certificateswebapp@gmail.com"
+        - "*"
+
+    - Effect: Allow
+      Action:
+        - sqs:*
+      Resource:
+        - "arn:aws:sqs:eu-central-1:*:*"
+
+    - Effect: Allow
+      Action:
+        - sns:*
+      Resource:
+        - "arn:aws:sns:eu-central-1:*:*"
+
+package:
+  individually: true
+  patterns:
+    - '!**/**'
+    - 'utility/**'
+
+functions:
+  authorize:
+    handler: authorization/authorization.authorize
+    package:
+      patterns:
+        - 'authorization/**'
+
+  login:
+    handler: login/login.login
+    package:
+      patterns:
+        - 'login/**'
+    events:
+      - http:
+          path: login
+          method: post
+          cors: true
+
+  registration:
+    handler: registration/registration.registration
+    package:
+      patterns:
+        - 'registration/**'
+    events:
+      - http:
+          path: registration
+          method: post
+          cors: true
+
+  beginUpload:
+    handler: uploadResource/beginUpload.beginUpload
+    package:
+      patterns:
+        - 'uploadResource/**'
+    events:
+      - http:
+          path: resource
+          method: post
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  processUpload:
+    handler: uploadResource/processUpload.processUpload
+    package:
+      include:
+        - 'uploadResource/**'
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - uploadSqsQueue
+              - Arn
+
+  notifyResourceAction:
+    handler: notifyResourceAction/notifyResourceAction.notifyResourceAction
+    package:
+      patterns:
+        - 'notifyResourceAction/**'
+    events:
+      - sns:
+          arn: "arn:aws:sns:eu-central-1:239804187295:resourceSnsTopic"
+
+  deleteResource:
+    handler: deleteResource/deleteResource.delete
+    package:
+      patterns:
+        - 'deleteResource/**'
+    events:
+      - http:
+          path: resource
+          method: delete
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  getResourceMetadataById:
+    handler: getResourceMetadataById/getResourceMetadataById.getResourceMetadataById
+    package:
+      include:
+        - 'getResourceMetadataById/**'
+    events:
+      - http:
+          path: resource/metadata
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  getResourceById:
+    handler: getResourceById/getResourceById.getResourceById
+    package:
+      include:
+        - 'getResourceById/**'
+    events:
+      - http:
+          path: resource
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  editResource:
+    handler: editResource/editResource.editResource
+    package:
+      include:
+        - 'editResource/**'
+    events:
+      - http:
+          path: resource
+          method: put
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  createDirectory:
+    handler: createDirectory/createDirectory.create
+    package:
+      patterns:
+        - 'createDirectory/**'
+    events:
+      - http:
+          path: directory
+          method: post
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  editDirectory:
+    handler: editDirectory/editDirectory.edit
+    package:
+      patterns:
+        - 'editDirectory/**'
+    events:
+      - http:
+          path: directory
+          method: put
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  deleteDirectory:
+    handler: deleteDirectory/deleteDirectory.delete
+    package:
+      patterns:
+        - 'deleteDirectory/**'
+    events:
+      - http:
+          path: directory
+          method: delete
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  getMyResources:
+    handler: getMyResources/getMyResources.getMyResources
+    package:
+      include:
+        - 'getMyResources/**'
+    events:
+      - http:
+          path: getMyResources
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  contentSharing:
+      handler: contentSharing/contentSharing.share
+      package:
+        include:
+          - 'contentSharing/**'
+      events:
+        - http:
+            path: share
+            method: put
+            cors: true
+            authorizer:
+              name: authorize
+              resultTtlInSeconds: 0
+              type: token
+
+  contentSharingList:
+    handler: getContentShareList/getContentShareList.get_list
+    package:
+      include:
+        - 'getContentShareList/**'
+    events:
+      - http:
+          path: share
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  checkPermission:
+    handler: checkPermission/checkPermission.check
+    package:
+      include:
+        - 'checkPermission/**'
+    events:
+      - http:
+          path: permission
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  getSharedContent:
+    handler: getSharedContent/getSharedContent.get_content
+    package:
+      include:
+        - 'getSharedContent/**'
+    events:
+      - http:
+          path: sharedContent
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  contentMoving:
+    handler: contentMoving/contentMoving.moving
+    package:
+      include:
+        - 'contentMoving/**'
+    events:
+      - http:
+          path: move
+          method: post
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  familyMemberInvitation:
+    handler: familyMemberInvitation/familyMemberInvitation.family_member_invitation
+    package:
+      include:
+        - 'familyMemberInvitation/**'
+    events:
+      - http:
+          path: familyInvitation
+          method: post
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  getInvitations:
+    handler: getInvitations/getInvitations.get_invitations
+    package:
+      include:
+        - 'getInvitations/**'
+    events:
+      - http:
+          path: invitation
+          method: get
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  resolveInvitation:
+    handler: resolveInvitation/resolveInvitation.resolve_invitation
+    package:
+      include:
+        - 'resolveInvitation/**'
+    events:
+      - http:
+          path: invitation
+          method: post
+          cors: true
+          authorizer:
+            name: authorize
+            resultTtlInSeconds: 0
+            type: token
+
+  familyMemberRegistration:
+    handler: familyMemberRegistration/familyMemberRegistration.family_member_registration
+    package:
+      include:
+        - 'familyMemberRegistration/**'
+
+  familyMemberNotifyInviter:
+    handler: familyMemberNotifyInviter/familyMemberNotifyInviter.family_registration_notify_inviter
+    package:
+      include:
+        - 'familyMemberNotifyInviter/**'
+
+  familyMemberCheckApproval:
+    handler: familyMemberCheckApproval/familyMemberCheckApproval.family_member_check_approval
+    package:
+      include:
+        - 'familyMemberCheckApproval/**'
+
+  familyMemberGiveAccess:
+    handler: familyMemberGiveAccess/familyMemberGiveAccess.family_member_give_access
+    package:
+      include:
+        - 'familyMemberGiveAccess/**'
+
+  notifyInviter:
+    handler: notifyInviter/notifyInviter.notify_inviter
+    package:
+      include:
+        - 'notifyInviter/**'
+    events:
+      - sns:
+          arn: "arn:aws:sns:eu-central-1:239804187295:notifyInviterSnsTopic"
+
+stepFunctions:
+  stateMachines:
+    familyRegistration:
+      name: 'FamilyRegistrationStepProcess'
+      events:
+        - http:
+            path: familyProcess
+            method: post
+      definition:
+        StartAt: familyMemberRegistration
+        States:
+          familyMemberRegistration:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:239804187295:function:three-drive-dev-familyMemberRegistration"
+            Next: checkUserValidity
+
+
+          checkUserValidity:
+            Type: Choice
+            Choices:
+              - Variable: "$.valid"
+                BooleanEquals: true
+                Next: familyRegistrationNotifyInviter
+            Default: unsuccessfullRegistration
+
+          familyRegistrationNotifyInviter:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:239804187295:function:three-drive-dev-familyMemberNotifyInviter"
+            Next: checkApproval
+
+
+          checkApproval:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:239804187295:function:three-drive-dev-familyMemberCheckApproval"
+            Retry:
+              - ErrorEquals:
+                  - States.TaskFailed
+                IntervalSeconds: 30
+                MaxAttempts: 10
+            Next: checkIfUserApprove
+
+
+          checkIfUserApprove:
+            Type: Choice
+            Choices:
+              - Variable: "$.valid"
+                BooleanEquals: true
+                Next: giveAccess
+            Default: successfullRegistration
+
+          giveAccess:
+            Type: Task
+            Resource: "arn:aws:lambda:eu-central-1:239804187295:function:three-drive-dev-familyMemberGiveAccess"
+            Next: successfullRegistration
+
+
+          successfullRegistration:
+            Type: Pass
+            End: true
+
+          unsuccessfullRegistration:
+            Type: Pass
+            End: true
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Users
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    directoriesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Directory
+        AttributeDefinitions:
+          - AttributeName: path
+            AttributeType: S
+        KeySchema:
+          - AttributeName: path
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    resourcesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Resources
+        AttributeDefinitions:
+          - AttributeName: path
+            AttributeType: S
+        KeySchema:
+          - AttributeName: path
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    invitesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Invites
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    resourcesThreeCloud:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: resources-three-cloud
+
+    uploadSqsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: upload-sqs-queue
+
+    resourceSnsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Resource SNS Topic
+        TopicName: resourceSnsTopic
+
+    notifyInviterSnsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Notify Inviter SNS Topic
+        TopicName: notifyInviterSnsTopic
+
+    resourceSnsTopicSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: lambda
+        TopicArn:
+          Ref: resourceSnsTopic
+        Endpoint:
+          Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:three-drive-dev-notifyResourceAction"
+
+    notifyInviterSNSTopicSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: lambda
+        TopicArn:
+          Ref: notifyInviterSnsTopic
+        Endpoint:
+          Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:three-drive-dev-notifyInviter"
+
+
+
+
+plugins:
+  - serverless-python-requirements
+  - serverless-step-functions
+
+
+custom:
+  pythonRequirements:
+    filename: requirements.txt
