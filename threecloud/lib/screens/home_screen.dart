@@ -567,28 +567,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(8.0),
                     children: [
                       if (snapshot.hasData)
-                        if (snapshot.data.directories.length == 0 &&
-                            snapshot.data.files.length == 0)
-                          Center(
-                            child: Column(children: const [
-                              Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text("Verification Requests",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.w500,
-                                      ))),
-                                Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: Text("There is no pending requests",
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w400,
-                                        ))),
-                            ]),
-                          ),
                         for (var i in (snapshot.data!).directories)
                           GestureDetector(
                               onTap: () {
