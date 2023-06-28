@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../widgets/big_text_field.dart';
@@ -114,6 +115,16 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                           }else{
                             createAccount(context);
                           }
+                          Fluttertoast.showToast(
+                              msg: "Registration successful!",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0
+                          );
+                          Navigator.of(context).pop(false);
                         }
                         ),
                         child: const Text("Register"),
@@ -147,7 +158,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
     {
       String id = await User.register(nameController.text, surnameController.text, emailController.text, passwordController.text, birthdateController.text, usernameController.text);
       await remeberThatUserLogedIn(id);
-      // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CreditCardScreen()));
     } on StateError catch (error)
     {
       showError(context, error.message);
@@ -160,7 +170,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
     {
       String id = await User.registerWithInvite(nameController.text, surnameController.text, emailController.text, passwordController.text, birthdateController.text, usernameController.text,referralUsernameController.text);
       await remeberThatUserLogedIn(id);
-      // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CreditCardScreen()));
     } on StateError catch (error)
     {
       showError(context, error.message);

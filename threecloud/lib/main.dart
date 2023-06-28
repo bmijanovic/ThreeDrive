@@ -21,17 +21,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // checkIfUserIsLoggedIn();
   }
-
-  // checkIfUserIsLoggedIn() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   loggedIn = prefs.getBool('loggedIn');
-  //   if (loggedIn == true) {
-  //     await User.getPersonalInformations(prefs.getString('userId'));
-  //   }
-  //   setState(() {});
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +41,7 @@ class _MyAppState extends State<MyApp> {
         ),
         tabBarTheme: myTabBarTheme,
       ),
-      home: loggedIn == true ? HomeScreen(currentPath: 'vukasinb7',) : LoginScreen(),
+      home: LoginScreen(),
     );
   }
 }
