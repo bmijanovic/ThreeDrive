@@ -38,6 +38,9 @@ class LoginScreen extends StatelessWidget {
                     BigTextField(usernameController, TextInputType.name, "Username*", false),
                     BigTextField(passwordController, TextInputType.visiblePassword, "Password*", true),
                     ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                      ),
                       onPressed: (() => logIn(context)),
                       child: const Text("Login"),
                     ),

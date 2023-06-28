@@ -78,21 +78,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getResources() async {
-    elements = Resource.getMyResources(currentPath);
+    elements = Resource.getMyResources(currentPath).whenComplete(() => isOpening=false);
     setState(() {});
   }
 
   getVerifications() async {
     setState(() {
-      verificationRequests = User.getInvitations();
+      verificationRequests = User.getInvitations().whenComplete(() => isOpening=false);
     });
   }
 
   getSharedResources() async {
     if (currentPathShared.length == 1) {
-      elementsShared = Resource.getSharedResource();
+      elementsShared = Resource.getSharedResource().whenComplete(() => isOpening=false);
     } else {
-      elementsShared = Resource.getMyResources(currentPathShared.last);
+      elementsShared = Resource.getMyResources(currentPathShared.last).whenComplete(() => isOpening=false);
     }
 
     setState(() {});
@@ -880,6 +880,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               icon: Icon(
                                                 Icons.close,
                                                 color: Colors.black,
+
                                               ),
                                               onPressed: () {
                                                 User.answerInvite(
@@ -918,12 +919,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget menu() {
     return Container(
-      color: Color(0xFF3F5AA6),
+      color: Colors.blue,
       child: TabBar(
         onTap: (index) {
           if (index == 0 && _activeIndex == 0) {
             if (currentPath.contains("/")) {
               setState(() {
+                isOpening=true;
                 currentPath = currentPath.split("/")[0];
                 updateTitle(0);
                 getResources();
@@ -935,12 +937,14 @@ class _HomeScreenState extends State<HomeScreen> {
           if (index == 1 && _activeIndex == 1) {
             if (currentPathShared.length > 1) {
               setState(() {
+                isOpening=true;
                 currentPathShared = ["shared"];
                 updateTitle(0);
                 getSharedResources();
               });
             }
           } else {
+            isOpening=true;
             getSharedResources();
           }
           if (index == 2) {
@@ -964,7 +968,8 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedLabelColor: Colors.white70,
         indicatorSize: TabBarIndicatorSize.tab,
         indicatorPadding: EdgeInsets.all(5.0),
-        indicatorColor: Colors.blue,
+
+        indicatorColor: Colors.lightBlueAccent,
         tabs: const [
           Tab(
             text: "Home",

@@ -21,7 +21,7 @@ class FloatingButton extends StatelessWidget {
   SpeedDial buildSpeedDial(BuildContext context) {
     return SpeedDial(
       animatedIconTheme: IconThemeData(size: 28.0),
-      backgroundColor: Colors.blueAccent[900],
+      backgroundColor: Colors.grey[200],
       visible: true,
       curve: Curves.bounceInOut,
       children: [
@@ -44,7 +44,7 @@ class FloatingButton extends StatelessWidget {
           labelBackgroundColor: Colors.black,
         ),
       ],
-      child: Icon(Icons.add),
+      child: const Icon(Icons.add,color: Colors.blue,),
     );
   }
 

@@ -242,6 +242,18 @@ class UploadFileScreenState extends State<UploadFileScreen>{
       ),
     );
   }
+  showError(BuildContext context, String message) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text("Error"),
+          content: Text(message),
+        );
+      },
+      barrierDismissible: true,
+    );
+  }
 
   upload() async {
     if (nameController.text=="")
@@ -252,7 +264,10 @@ class UploadFileScreenState extends State<UploadFileScreen>{
     for (int i=0;i<_keyList.length;i++){
       tags.add({"key":_keyList[i],"value":_valueList[i]});
     }
-    await Resource.upload(nameController.text,base64File,tags,current_path);
+    var response=await Resource.upload(nameController.text,base64File,tags,current_path);
+    if (response=="400"){
+      showError(context, "File Aready Exist");
+    }
     Navigator.pop(context);
     Fluttertoast.showToast(
         msg: "File Uploaded Successfully!",
@@ -293,16 +308,5 @@ class UploadFileScreenState extends State<UploadFileScreen>{
     return true;
   }
 
-  showError(BuildContext context, String message) {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: const Text("Error"),
-          content: Text(message),
-        );
-      },
-      barrierDismissible: true,
-    );
-  }
+
 }

@@ -46,8 +46,8 @@ const buttonTextStyle = TextStyle(
     height: 1.6);
 
 var mainColorScheme = ColorScheme.fromSwatch(
-  primarySwatch: Colors.indigo,
-  accentColor: Colors.indigo,
+  primarySwatch: Colors.blue,
+  accentColor: Colors.blue,
 );
 
 var myElevatedButtonStyle = ButtonStyle(

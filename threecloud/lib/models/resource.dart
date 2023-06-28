@@ -33,7 +33,7 @@ class Resource {
     if (response.statusCode == 200) {
       return "1";
     } else {
-      throw StateError(res['body']);
+      return response.statusCode.toString();
     }
   }
 
