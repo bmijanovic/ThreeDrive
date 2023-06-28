@@ -35,7 +35,7 @@ def share(event, context):
 
 
 def share_content(user, path, type, username, action):
-    if "/" not in path:
+    if "/" not in path and action == "GIVE":
         raise ValueError("Root folder cannot be shared")
 
     if username == user:
@@ -77,4 +77,3 @@ def share_content(user, path, type, username, action):
         insert_resource_in_dynamo(content)
     else:
         raise ValueError("Wrong type")
-

@@ -68,6 +68,8 @@ class EditFileScreenState extends State<EditFileScreen>{
       for (var entry in value.entries) {
         if (!keysToRemove.contains(entry.key)) {
           setState(() {
+            _keyList.add(entry.key);
+            _valueList.add(entry.key);
             _cardList.add(TagCard(
               keyTag: entry.key, valueTag: entry.value,));
           });

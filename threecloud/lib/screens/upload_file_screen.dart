@@ -32,10 +32,15 @@ class UploadFileScreenState extends State<UploadFileScreen>{
   String valueError="";
   String nameError="";
 
+  @override
+  void initState() {
+    super.initState();
+    nameController.text= file.path.split('/').last.split('.')[0];
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    nameController.text= file.path.split('/').last.split('.')[0];
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(

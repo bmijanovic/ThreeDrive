@@ -42,7 +42,7 @@ def update_path_for_resource_in_dynamo(path, new_path):
         new_path = new_path[:-1]
 
     item['path'] = new_path + "/" + item['name'] + '.' + item['extension']
-    item['timeUpdated'] = str(datetime.now())
+    item['timeModified'] = str(datetime.now())
 
     delete_resource_from_dynamo(path)
     insert_resource_in_dynamo(item)

@@ -2,7 +2,7 @@
     package="com.example.threecloud">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
    <application
-        android:label="threecloud"
+        android:label="Three Drive"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  getVerifications()async {
+  getVerifications() async {
     setState(() {
       verificationRequests = User.getInvitations();
     });
@@ -107,28 +107,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 length: 4,
                 child: Scaffold(
                     appBar: AppBar(
-                        title: Text(title),
-                        elevation: 0.0,
-                        iconTheme: IconThemeData(color: Colors.white, size: 30),
-                        leading: shouldShowBack(),
-                        actions: <Widget>[
-
-                          if(_activeIndex==0)
-                        IconButton(onPressed: ((){
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    ContentSharingScreen(
-                                      action:
-                                      "DIRECTORY",
-                                      path: currentPath,
-                                    )),
-                          ).then((value) => this);
-                        }), icon: Icon(Icons.group_add)),
-
+                      title: Text(title),
+                      elevation: 0.0,
+                      iconTheme: IconThemeData(color: Colors.white, size: 30),
+                      leading: shouldShowBack(),
+                      actions: <Widget>[
+                        if (_activeIndex == 0)
+                          IconButton(
+                              onPressed: (() {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ContentSharingScreen(
+                                            action: "DIRECTORY",
+                                            path: currentPath,
+                                          )),
+                                ).then((value) => this);
+                              }),
+                              icon: Icon(Icons.group_add)),
                       ],
-                        ),
+                    ),
                     bottomNavigationBar: menu(),
                     body: TabBarView(children: [
                       Container(child: home()),
@@ -395,118 +394,109 @@ class _HomeScreenState extends State<HomeScreen> {
                                             mainAxisSize: MainAxisSize.min,
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
-                                                children: <Widget>[
-                                                  const Text('Actions'),
-                                                  const SizedBox(height: 15),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (
-                                                                context) =>
-                                                                EditFileScreen(
-                                                                  current_path: i,
-                                                                )),
-                                                      ).then((value) =>
-                                                          Navigator.pop(
-                                                              context));
-                                                    },
-                                                    child: const Text('Edit'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Resource.delete(
-                                                          i, currentPath)
-                                                          .whenComplete(
-                                                              () =>
-                                                              getResources());
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text('Delete'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) => DirectoryPickerScreen(
-                                                            currentPath: "",
-                                                            content: i,
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                    child: const Text('Move'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (
-                                                                context) =>
-                                                                FileDetailsScreen(
-                                                                  filePath: i,
-                                                                )),
-                                                      );
-                                                    },
-                                                    child: const Text(
-                                                        'Details'),
-                                                  ),
-                                                  TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (
-                                                                  context) =>
-                                                                  ContentSharingScreen(
-                                                                      action:
-                                                                      "RESOURCE",
-                                                                      path: i)),
-                                                        ).then((value) => this);
-                                                      },
-                                                      child: const Text(
-                                                          'Share')),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Resource.downloadResource(
-                                                          i)
-                                                          .whenComplete(() =>
-                                                      {
-                                                        Fluttertoast.showToast(
-                                                            msg:
-                                                            "File downloaded successfully!",
-                                                            toastLength: Toast
-                                                                .LENGTH_SHORT,
-                                                            gravity:
-                                                            ToastGravity
-                                                                .CENTER,
-                                                            timeInSecForIosWeb:
-                                                            1,
-                                                            backgroundColor:
-                                                            Colors.red,
-                                                            textColor:
-                                                            Colors.white,
-                                                            fontSize: 16.0)
-                                                      });
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text(
-                                                        'Download'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text('Close'),
-                                                  ),
-                                                ],
+                                            children: <Widget>[
+                                              const Text('Actions'),
+                                              const SizedBox(height: 15),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            EditFileScreen(
+                                                              current_path: i,
+                                                            )),
+                                                  ).then((value) =>
+                                                      Navigator.pop(context));
+                                                },
+                                                child: const Text('Edit'),
                                               ),
-
+                                              TextButton(
+                                                onPressed: () {
+                                                  Resource.delete(
+                                                          i, currentPath)
+                                                      .whenComplete(
+                                                          () => getResources());
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Delete'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          DirectoryPickerScreen(
+                                                        currentPath: "",
+                                                        content: i,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: const Text('Move'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            FileDetailsScreen(
+                                                              filePath: i,
+                                                            )),
+                                                  );
+                                                },
+                                                child: const Text('Details'),
+                                              ),
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ContentSharingScreen(
+                                                                  action:
+                                                                      "RESOURCE",
+                                                                  path: i)),
+                                                    ).then((value) => this);
+                                                  },
+                                                  child: const Text('Share')),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Resource.downloadResource(i)
+                                                      .whenComplete(() => {
+                                                            Fluttertoast.showToast(
+                                                                msg:
+                                                                    "File downloaded successfully!",
+                                                                toastLength: Toast
+                                                                    .LENGTH_SHORT,
+                                                                gravity:
+                                                                    ToastGravity
+                                                                        .CENTER,
+                                                                timeInSecForIosWeb:
+                                                                    1,
+                                                                backgroundColor:
+                                                                    Colors.red,
+                                                                textColor:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 16.0)
+                                                          });
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Download'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text('Close'),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       )),
                               child: Column(children: [
@@ -577,6 +567,28 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(8.0),
                     children: [
                       if (snapshot.hasData)
+                        if (snapshot.data.directories.length == 0 &&
+                            snapshot.data.files.length == 0)
+                          Center(
+                            child: Column(children: const [
+                              Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text("Verification Requests",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.w500,
+                                      ))),
+                                Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text("There is no pending requests",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w400,
+                                        ))),
+                            ]),
+                          ),
                         for (var i in (snapshot.data!).directories)
                           GestureDetector(
                               onTap: () {
@@ -795,55 +807,91 @@ class _HomeScreenState extends State<HomeScreen> {
             } else {
               return Scaffold(
                   body: Scaffold(
-                    body: Center(
-                      child: Column(
-                        children: [
-                          Padding(padding: EdgeInsets.all(8.0),child:Text("Verification Requests",style: TextStyle(color: Colors.black,fontSize: 25,fontWeight: FontWeight.w500,))),
-                          if (snapshot.data.length==0)
-                            Padding(padding: EdgeInsets.all(8.0),child:Text("There is no pending requests",style: TextStyle(color: Colors.black,fontSize: 22,fontWeight: FontWeight.w400,))),
-                          if (snapshot.data.length!=0)
-                          for (var item in snapshot.data)
+                body: Center(
+                  child: Column(
+                    children: [
+                      Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text("Verification Requests",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                                fontWeight: FontWeight.w500,
+                              ))),
+                      if (snapshot.data.length == 0)
+                        Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text("There is no pending requests",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w400,
+                                ))),
+                      if (snapshot.data.length != 0)
+                        for (var item in snapshot.data)
                           Card(
                             child: SizedBox(
                               width: 350,
                               height: 100,
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                              Padding(padding: EdgeInsets.all(8.0),child:Text(item['member_username'],style: TextStyle(color: Colors.black,fontSize: 22,fontWeight: FontWeight.w400,))),
+                                  Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(item['member_username'],
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w400,
+                                          ))),
                                   Row(
                                     children: [
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Center(child: CircleAvatar(
-                                          radius: 20,
-                                          backgroundColor: Color(0xff94d500),
-                                          child: IconButton(
-                                            icon: Icon(
-                                              Icons.done,
-                                              color: Colors.black,
+                                        child: Center(
+                                          child: CircleAvatar(
+                                            radius: 20,
+                                            backgroundColor: Color(0xff94d500),
+                                            child: IconButton(
+                                              icon: Icon(
+                                                Icons.done,
+                                                color: Colors.black,
+                                              ),
+                                              onPressed: () {
+                                                User.answerInvite(
+                                                        item['id']
+                                                            .split('/')[1],
+                                                        true)
+                                                    .whenComplete(() =>
+                                                        getVerifications());
+                                              },
                                             ),
-                                            onPressed: () {
-                                              User.answerInvite(item['id'].split('/')[1], true).whenComplete(() => getVerifications());
-                                            },
                                           ),
-                                        ),),
+                                        ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Center(child: CircleAvatar(
-                                          radius: 20,
-                                          backgroundColor: Colors.red,
-                                          child: IconButton(
-                                            icon: Icon(
-                                              Icons.close,
-                                              color: Colors.black,
+                                        child: Center(
+                                          child: CircleAvatar(
+                                            radius: 20,
+                                            backgroundColor: Colors.red,
+                                            child: IconButton(
+                                              icon: Icon(
+                                                Icons.close,
+                                                color: Colors.black,
+                                              ),
+                                              onPressed: () {
+                                                User.answerInvite(
+                                                        item['id']
+                                                            .split('/')[1],
+                                                        false)
+                                                    .whenComplete(() =>
+                                                        getVerifications());
+                                              },
                                             ),
-                                            onPressed: () {
-                                              User.answerInvite(item['id'].split('/')[1], false).whenComplete(() => getVerifications());
-                                            },
                                           ),
-                                        ),),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -851,16 +899,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ),
-
-                        ],
-                      ),
-                    ),
-
-                    floatingActionButton: FloatingActionButton( onPressed: (){
+                    ],
+                  ),
+                ),
+                floatingActionButton: FloatingActionButton(
+                    onPressed: () {
                       showDialog<String>(
                           context: context,
-                          builder: (BuildContext context) =>FamilyEmailPopup(context));}, child: const Icon(Icons.add)),
-                  ));
+                          builder: (BuildContext context) =>
+                              FamilyEmailPopup(context));
+                    },
+                    child: const Icon(Icons.add)),
+              ));
             }
           }
         });
@@ -879,8 +929,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 getResources();
               });
             }
+          } else {
+            getResources();
           }
-          else{getResources();}
           if (index == 1 && _activeIndex == 1) {
             if (currentPathShared.length > 1) {
               setState(() {
@@ -889,18 +940,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 getSharedResources();
               });
             }
-          }else {getSharedResources();}
-          if (index ==2){
+          } else {
+            getSharedResources();
+          }
+          if (index == 2) {
             getVerifications();
           }
           if (index == 3) {
             User.rememberThatUserLoggedOut();
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (BuildContext context) => LoginScreen()),
-                  (Route<dynamic> route) => false,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => LoginScreen()),
+              (Route<dynamic> route) => false,
             );
-
-
           }
           print(index);
           _activeIndex = index;

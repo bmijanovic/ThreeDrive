@@ -38,9 +38,12 @@ class RegistrationScreenState extends State<RegistrationScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                "Register to use our services!",
-                style: Theme.of(context).textTheme.titleMedium,
+              Padding(
+                padding: const EdgeInsets.only(top: 60),
+                child: Text(
+                  "Register to use our services!",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
               const SizedBox(
                 height: 50.0,
@@ -106,7 +109,7 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                     BigTextField(referralUsernameController, TextInputType.name, "Referral username*", false),
 
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(top:8.0,bottom: 40),
                       child: ElevatedButton(
                         onPressed: (() {
                           if (isChecked){

@@ -14,6 +14,7 @@ resources_bucket_name = os.environ['RESOURCES_BUCKET_NAME']
 resource_sns_topic_arn = os.environ['RESOURCE_SNS_TOPIC_ARN']
 sns = boto3.client('sns')
 
+
 def delete(event, context):
     try:
         path = event["queryStringParameters"]["path"]
@@ -48,12 +49,13 @@ def delete(event, context):
 
         user = find_user_by_username(resource['owner'])
         if user is not None:
+            user = user[0]
             sns.publish(
                 TopicArn=resource_sns_topic_arn,
                 Message=json.dumps({
                     "receiver": user['email'],
                     "subject": 'File deleted successfully!',
-                    "content": 'Your file ' + resource['path'].split("/")[-1] + 'has been deleted successfully!'
+                    "content": 'Your file ' + resource['path'].split("/")[-1] + ' has been deleted successfully!'
                 }),
                 Subject='File Delete'
             )
@@ -69,7 +71,6 @@ def delete(event, context):
         return create_response(400, body)
 
 
-
 def update_parent_directory_items(path, resources):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(directories_table_name)
@@ -77,5 +78,5 @@ def update_parent_directory_items(path, resources):
         Key={'path': path},
         UpdateExpression='SET #resources = :val',
         ExpressionAttributeValues={':val': resources},
-        ExpressionAttributeNames={'#resources':'items'}
+        ExpressionAttributeNames={'#resources': 'items'}
     )
